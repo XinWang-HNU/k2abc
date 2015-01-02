@@ -22,8 +22,8 @@ theta_samps = zeros(M, 1);
 
 % these will vary later
 kernelparams = meddistance(yobs)^2;
-howmanyepsilon = 5;
-epsilon = logspace(-4, 10, howmanyepsilon);
+howmanyepsilon = 6;
+epsilon = logspace(-4, 8, howmanyepsilon);
 % epsilon = 1000; 
 
 muhat = zeros(howmanyepsilon,1);
@@ -40,7 +40,7 @@ for count = 1:howmanyepsilon
         %% (2) draw parameters from the prior (theta_j)
         % e.g., fix sigma, and draw mean from a Gaussian
         
-        theta_samps(j) = mvnrnd(zeros(1, d)+10, prior_var);
+        theta_samps(j) = mvnrnd(zeros(1, d)+2, prior_var);
         
         %% (3) sample y from the parameters (y_i^j)
         
@@ -72,9 +72,11 @@ end
 %% (6) compute f(sigma, epsilon) = squared distance between theta_mean and theta_true
 
 mse = @(a) (a-theta_mean).^2;
-subplot(211); plot(muhat)
-subplot(212); plot(mse(muhat))
+subplot(211); semilogx(epsilon, muhat); ylabel('muhat'); title('fixed length scale');
+subplot(212); loglog(epsilon, mse(muhat)); xlabel('epsilon'); ylabel('mse'); 
 
+% as epsilon gets larger, our estimate gets closer to prior mean.
+% as epsilon gets smaller, our estimate gets closer to observations.
 
 
 
