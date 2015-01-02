@@ -1,11 +1,13 @@
 % Matlab startup file.
 % Include necessary dependencies
+display('Running startup.m');
+
 base = pwd();
 fs = filesep();
 addpath(pwd);
 
 % folders to be added by genpath
-gfolders = {'mainfolder', 'runcode'};
+gfolders = {'mainfolder', 'runcode', 'thirdpartycode/xunit/'};
 for i=1:length(gfolders)
     fol = gfolders{i};
     p = [base , fs, fol];
