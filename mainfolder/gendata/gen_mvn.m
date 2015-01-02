@@ -11,3 +11,4 @@ function dat = gen_mvn(mu, sig, howmanysamps)
 %        dat: data
 
 dat = mvnrnd(mu, sig, howmanysamps);
+dat = dat';
