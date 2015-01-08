@@ -14,7 +14,7 @@ classdef Kernel < handle
         % Return a set of parameters used in this kernel in a cell array.
         % If the kernel does not have any parameter, return an empty cell
         % array, {}.
-        Param = getParam(this);
+        %Param = getParam(this);
         
         % Short summary of this kernel. Useful if in the form
         % KerXXX(param1, param2).

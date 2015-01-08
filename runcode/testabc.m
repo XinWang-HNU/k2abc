@@ -22,36 +22,38 @@ theta_samps = zeros(M, 1);
 
 % these will vary later
 kernelparams = meddistance(yobs)^2;
-howmanyepsilon = 6;
-epsilon = logspace(-4, 8, howmanyepsilon);
+howmanyepsilon = 5;
+epsilon = logspace(-4, 2, howmanyepsilon);
 % epsilon = 1000; 
 
 muhat = zeros(howmanyepsilon,1);
 
+ker = KGaussian(kernelparams);
 for count = 1:howmanyepsilon
     
     % we sample y L times, where each y consists of Ns samples
-    L = 50;
+    L = 5;
     Ns = 200;
     k = zeros(M, L);
     
+    %% (2) draw parameters from the prior (theta_j)
+    % e.g., fix sigma, and draw mean from a Gaussian
+    theta_samps = mvnrnd(zeros(1, d)+2, prior_var, M, 1);
+    %theta_samps = randn(M, 1)*sqrt(prior_var) + 2;
+
     for j=1:M
         
-        %% (2) draw parameters from the prior (theta_j)
-        % e.g., fix sigma, and draw mean from a Gaussian
-        
-        theta_samps(j) = mvnrnd(zeros(1, d)+2, prior_var);
         
         %% (3) sample y from the parameters (y_i^j)
         
-        parfor l = 1:L
+        for l = 1:L
             
             [count j l]
             
             y = gen_mvn(theta_samps(j), theta_var, Ns);
+            %y = randn(1, Ns)*sqrt(theta_var) + theta_samps(j);
             
             %% (4) compute MMD for each y_i^j and y*_i^j
-            ker = KGaussian(kernelparams);
             k(j, l) = exp(-mmd(y, yobs, ker)^2/epsilon(count));
             
         end

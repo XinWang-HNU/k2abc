@@ -40,9 +40,9 @@ classdef KGaussian < Kernel
 
         end
         
-        function Param = getParam(this)
-            Param = {this.sigma2};
-        end
+        %function Param = getParam(this)
+        %    Param = {this.sigma2};
+        %end
         
         function s=shortSummary(this)
             s = sprintf('KGaussian(%.3g)', this.sigma2);

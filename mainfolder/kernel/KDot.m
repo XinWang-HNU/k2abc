@@ -28,9 +28,9 @@ classdef KDot < Kernel
             
         end
         
-        function Param = getParam(this)
-            Param = {};
-        end
+        %function Param = getParam(this)
+        %    Param = {};
+        %end
         
         function s=shortSummary(this)
             s = 'KDot';
