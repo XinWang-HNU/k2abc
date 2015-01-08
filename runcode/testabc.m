@@ -32,13 +32,8 @@ ker = KGaussian(kernelparams);
 for count = 1:howmanyepsilon
     
     % we sample y L times, where each y consists of Ns samples
-<<<<<<< HEAD
-    L = 50;
-    Ns = 100;
-=======
     L = 5;
     Ns = 200;
->>>>>>> 5013d9c808a499e08ef3db8aa535eb25a160b807
     k = zeros(M, L);
     
     %% (2) draw parameters from the prior (theta_j)
