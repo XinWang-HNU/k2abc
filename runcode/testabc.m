@@ -32,7 +32,7 @@ for count = 1:howmanyepsilon
     
     % we sample y L times, where each y consists of Ns samples
     L = 50;
-    Ns = 200;
+    Ns = 100;
     k = zeros(M, L);
     
     for j=1:M
