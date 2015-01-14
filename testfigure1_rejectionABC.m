@@ -30,7 +30,7 @@ for iter=1:niter
     % sample theta M times
     M = 500;
     howmanytheta = length(theta);
-    theta_samps = zeros(M, howmanytheta);
+%     theta_samps = zeros(M, howmanytheta);
     
     howmanyepsilon = 5;
     epsilon = logspace(-2, 4, howmanyepsilon);
