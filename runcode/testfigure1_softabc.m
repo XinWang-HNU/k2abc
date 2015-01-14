@@ -28,7 +28,7 @@ for iter = 2:niter
     % kernelparams = meddistance(yobs)^2;
     % kernelparams = meddistance(yobs)^2*2;
     howmanyepsilon = 5;
-    epsilon = logspace(-4, 2, howmanyepsilon);
+    epsilon = logspace(-2, 4, howmanyepsilon);
     % epsilon = 1000;
     
     muhat_softabc = zeros(howmanyepsilon,howmanytheta);
@@ -112,18 +112,30 @@ end
 
 %%
 
-% load(strcat('results_fig1_softabc','_thIter',num2str(iter),'.mat'));
-% 
-% mse = @(a) sum(bsxfun(@minus, a, theta').^2, 2);
-% % /howmanytheta;
-% 
-% figure(2);
-% subplot(2,2,[1 2]); semilogx(epsilon, muhat_softabc, 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('muhat softabc');
-% subplot(2,2,[3 4]); loglog(epsilon, mse(muhat_softabc), 'k.--'); xlabel('epsilon'); ylabel('mse'); hold on;
-% 
-% % as epsilon gets larger, our estimate gets closer to prior mean.
-% % as epsilon gets smaller, our estimate gets closer to observations.
-% 
-% 
-% 
-% min(mse(muhat))
+%% check the results
+
+matminmse_softABC = zeros(20,1);
+msemat = zeros(20, howmanyepsilon);
+meanofmean_softABC = zeros(howmanyepsilon, howmanytheta, 20);
+
+%%
+for iter = 1:20
+    load(strcat('results_fig1_softabc','_thIter',num2str(iter),'.mat'));
+    
+    mse = @(a) sum(bsxfun(@minus, a, theta').^2, 2);
+    figure(2);
+    subplot(2,2,[1 2]); semilogx(epsilon, muhat_softabc, 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('muhat'); title('fixed length scale = median(obs)');
+    subplot(2,2,[3 4]); loglog(epsilon, mse(muhat_softabc), 'k.--'); hold on;  xlabel('epsilon'); ylabel('mse'); hold on;
+    
+    matminmse_softABC(iter) = min(mse(muhat_softabc));
+    msemat(iter,:) = mse(muhat_softabc);
+    
+    meanofmean_softABC(:,:,iter) = muhat_softabc; 
+end
+
+%%
+
+% mean(msemat) = 1.0182    4.3368   14.2430   14.5411   14.6854
+figure(2);
+subplot(2,2,[1 2]); semilogx(epsilon, mean(meanofmean_softABC,3), 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('mean of muhat (20 iterations)');  title('soft ABC');
+subplot(2,2,[3 4]); loglog(epsilon, mean(msemat), 'k.-'); xlabel('epsilon'); ylabel('mean of mse (20 iterations)'); hold on;
