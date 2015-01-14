@@ -50,7 +50,7 @@
 % 
 % subplot(221); hist(discvar)
 % subplot(222); hist(yobs)
-% 
+
 % 
 % save(strcat('fig1data.mat'), 'yobs', 'theta', 'maxy', 'discvar', 'prob', 'f'); 
 
@@ -67,7 +67,7 @@ niter = 20;
 
 for iter=1:niter
     
-%     [iter niter]
+    [iter niter]
     
 %     kernelprs = meddistance(yobs)^2.*[0.1 0.5 1 2 4 8];
     kernelprs = meddistance(yobs)^2; 
@@ -81,10 +81,13 @@ for iter=1:niter
         % sample theta M times
         M = 500;
         howmanytheta = length(theta);
-        theta_samps = zeros(M, howmanytheta);
+%         theta_samps = zeros(M, howmanytheta);
         
         howmanyepsilon = 5;
         epsilon = logspace(-4, 2, howmanyepsilon);
+
+%         howmanyepsilon = 1;
+%         epsilon = 1e-4;
 
         muhat = zeros(howmanyepsilon,howmanytheta);
         
@@ -95,7 +98,6 @@ for iter=1:niter
         %%
         for count = 1:howmanyepsilon
             
-            [iter count]
             
             % we sample y L times, where each y consists of Ns samples
             L = 100;
@@ -170,19 +172,53 @@ end
 %% (6) compute f(sigma, epsilon) = squared distance between theta_mean and theta_true
 
 % load results_fig1_ourmethod_kernelparam7.mat;
-%
+
 % kernelprs = meddistance(yobs)^2.*[0.1 0.5 1 2 4 8 16];
-%
+
+% load(strcat('results_fig1_ourmethod','_kernelparam',num2str(kkk),'_thIter',num2str(iter),'.mat'));
+% 
 % mse = @(a) sum(bsxfun(@minus, a, theta').^2, 2);
-% % /howmanytheta;
-%
+% /howmanytheta;
+
 % figure(2);
-% % subplot(2,2,[3 4]); semilogx(epsilon, muhat, 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('muhat'); title('fixed length scale = median(obs)');
+% subplot(2,2,[1 2]); semilogx(epsilon, muhat, 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('muhat'); title('fixed length scale = median(obs)');
 % subplot(2,2,[3 4]); loglog(epsilon, mse(muhat), 'k.--'); xlabel('epsilon'); ylabel('mse'); hold on;
-%
-% % as epsilon gets larger, our estimate gets closer to prior mean.
-% % as epsilon gets smaller, our estimate gets closer to observations.
-%
-%
-%
+
+% as epsilon gets larger, our estimate gets closer to prior mean.
+% as epsilon gets smaller, our estimate gets closer to observations.
+
+
+
 % min(mse(muhat))
+
+%% check the results
+
+% maxiter = 5; 
+% matminmse = zeros(maxiter,1);
+% msemat = zeros(maxiter, howmanyepsilon);
+% accptratemat = zeros(maxiter, howmanyepsilon); 
+% meanofmean_ours = zeros(howmanyepsilon, howmanytheta, maxiter);
+% 
+% %%
+% for iter = 1:maxiter
+% %     load(strcat('results_fig1_rejectABC','_thIter',num2str(iter),'.mat'));
+%     load(strcat('results_fig1_ourmethod','_kernelparam',num2str(kkk),'_thIter',num2str(iter),'.mat'))
+%     
+%     mse = @(a) sum(bsxfun(@minus, a, theta').^2, 2);
+%     figure(3);
+%     subplot(2,2,[1 2]); semilogx(epsilon, muhat, 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('muhat'); title('fixed length scale = median(obs)');
+%     subplot(2,2,[3 4]); loglog(epsilon, mse(muhat), 'k.--'); xlabel('epsilon'); ylabel('mse'); hold on;
+%     
+%     matminmse(iter) = min(mse(muhat));
+%     msemat(iter,:) = mse(muhat);
+% %     accptratemat(iter,:) = accptrate;
+%     
+%     meanofmean_ours(:,:,iter) = muhat; 
+% end
+% 
+% %%
+% 
+% figure(2);
+% subplot(2,2,[1 2]); semilogx(epsilon, mean(meanofmean_ours,3), 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('mean of muhat (5 iterations)');  title('ours');
+% subplot(2,2,[3 4]); loglog(epsilon, mean(msemat), 'k.-'); xlabel('epsilon'); ylabel('mean of mse (5 iterations)'); hold on;
+
