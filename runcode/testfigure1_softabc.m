@@ -22,7 +22,7 @@ for iter = 2:niter
     % sample theta M times
     M = 500;
     howmanytheta = length(theta);
-    theta_samps = zeros(M, howmanytheta);
+%     theta_samps = zeros(M, howmanytheta);
     
     % these will vary later
     % kernelparams = meddistance(yobs)^2;
@@ -124,7 +124,7 @@ for iter = 1:20
     
     mse = @(a) sum(bsxfun(@minus, a, theta').^2, 2);
     figure(2);
-    subplot(2,2,[1 2]); semilogx(epsilon, muhat_softabc, 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('muhat'); title('fixed length scale = median(obs)');
+    subplot(2,2,[1 2]); hold on; semilogx(epsilon, muhat_softabc, 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('muhat'); title('fixed length scale = median(obs)');
     subplot(2,2,[3 4]); loglog(epsilon, mse(muhat_softabc), 'k.--'); hold on;  xlabel('epsilon'); ylabel('mse'); hold on;
     
     matminmse_softABC(iter) = min(mse(muhat_softabc));
