@@ -63,13 +63,14 @@ close all;
 
 load fig1data.mat; 
 
-niter = 5;
+niter = 20;
 
 for iter=1:niter
     
-    [iter niter]
+%     [iter niter]
     
-    kernelprs = meddistance(yobs)^2.*[0.1 0.5 1 2 4 8];
+%     kernelprs = meddistance(yobs)^2.*[0.1 0.5 1 2 4 8];
+    kernelprs = meddistance(yobs)^2; 
     
     for kkk=1:length(kernelprs)
         
@@ -82,13 +83,9 @@ for iter=1:niter
         howmanytheta = length(theta);
         theta_samps = zeros(M, howmanytheta);
         
-        % these will vary later
-        % kernelparams = meddistance(yobs)^2;
-        % kernelparams = meddistance(yobs)^2*2;
         howmanyepsilon = 5;
         epsilon = logspace(-4, 2, howmanyepsilon);
-        % epsilon = 1000;
-        
+
         muhat = zeros(howmanyepsilon,howmanytheta);
         
         ker = KGaussian(kernelparams);
@@ -97,6 +94,8 @@ for iter=1:niter
         
         %%
         for count = 1:howmanyepsilon
+            
+            [iter count]
             
             % we sample y L times, where each y consists of Ns samples
             L = 100;
@@ -118,9 +117,9 @@ for iter=1:niter
                 
                 %% (3) sample y from the parameters (y_i^j)
                 
-                for l = 1:L
+                parfor l = 1:L
                     
-                    [iter count j l]
+%                     [iter count j l]
                     
                     %             % draw samples for y given theta
                     %             unnorprob_samps = [f(theta_samps(j,:))'; 1];
