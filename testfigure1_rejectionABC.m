@@ -8,7 +8,7 @@ close all;
 
 %% load data generated from bimodal p(y|theta)
 
-load fig1data.mat; 
+load fig1data_200.mat; 
 
 % summary statistic from yobs
 ss = [mean(yobs) var(yobs)];
@@ -28,7 +28,7 @@ for iter=1:niter
     maxy = 4;
     
     % sample theta M times
-    M = 500;
+    M = 200;
     howmanytheta = length(theta);
 %     theta_samps = zeros(M, howmanytheta);
     
@@ -122,7 +122,7 @@ for iter=1:niter
 
     % save results
     
-    FN = strcat('results_fig1_rejectABC','_thIter',num2str(iter),'.mat');
+    FN = strcat('results_fig1_rejectABC_200','_thIter',num2str(iter),'.mat');
     save(FN, 'muhat_rejectABC', 'minmse_rejectABC', 'accptrate', 'yobs', 'theta', 'howmanytheta', 'howmanyepsilon', 'epsilon');
 
    
@@ -137,10 +137,11 @@ meanofmean_rejectABC = zeros(howmanyepsilon, howmanytheta, 20);
 
 %%
 for iter = 1:20
-    load(strcat('results_fig1_rejectABC','_thIter',num2str(iter),'.mat'));
+%     load(strcat('results_fig1_rejectABC','_thIter',num2str(iter),'.mat'));
+    load(strcat('results_fig1_rejectABC_200','_thIter',num2str(iter),'.mat'));
     
     mse = @(a) sum(bsxfun(@minus, a, theta').^2, 2);
-    figure(2);
+    figure(3);
     subplot(2,2,[1 2]); semilogx(epsilon, muhat_rejectABC, 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('muhat'); title('fixed length scale = median(obs)');
     subplot(2,2,[3 4]); loglog(epsilon, mse(muhat_rejectABC), 'k.--'); xlabel('epsilon'); ylabel('mse'); hold on;
     
@@ -156,6 +157,8 @@ end
 % mean(msemat) = 1.6667    1.6489   14.4913   14.7748   14.3310
 
 figure(2);
-subplot(2,2,[1 2]); semilogx(epsilon, mean(meanofmean_rejectABC,3), 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('mean of muhat (20 iterations)');  title('rejection ABC');
-subplot(2,2,[3 4]); loglog(epsilon, mean(msemat), 'k.-'); xlabel('epsilon'); ylabel('mean of mse (20 iterations)'); hold on;
+subplot(2,2,[1 2]); semilogx(epsilon, mean(meanofmean_rejectABC,3), 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); ylabel('mean of muhat (20 iterations)');  title('rejection ABC (200 yobs)');
+subplot(2,2,[3 4]); loglog(epsilon, mse(mean(meanofmean_rejectABC,3)), 'k.-'); xlabel('epsilon'); set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); ylabel('mse of mean of muhat (20 iterations)'); hold on;
 
+% min(mean(msemat))
+min(mse(mean(meanofmean_rejectABC,3)))
