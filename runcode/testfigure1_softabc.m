@@ -4,7 +4,7 @@ clear all;
 clc;
 close all;
 
-load fig1data.mat;
+load fig1data_200.mat;
 
 % summary statistic from yobs
 ss = [mean(yobs) var(yobs)];
@@ -13,14 +13,14 @@ ss = [mean(yobs) var(yobs)];
 
 niter = 20;
 
-for iter = 2:niter
+for iter = 1:niter
     
     [iter niter]
     
     %% run our ABC code
     
     % sample theta M times
-    M = 500;
+    M = 200;
     howmanytheta = length(theta);
 %     theta_samps = zeros(M, howmanytheta);
     
@@ -28,7 +28,7 @@ for iter = 2:niter
     % kernelparams = meddistance(yobs)^2;
     % kernelparams = meddistance(yobs)^2*2;
     howmanyepsilon = 5;
-    epsilon = logspace(-2, 4, howmanyepsilon);
+    epsilon = logspace(-4, 2, howmanyepsilon);
     % epsilon = 1000;
     
     muhat_softabc = zeros(howmanyepsilon,howmanytheta);
@@ -39,8 +39,10 @@ for iter = 2:niter
     for count = 1:howmanyepsilon
         
         % we sample y L times, where each y consists of Ns samples
+%         L = 100;
+%         Ns = 200;
         L = 100;
-        Ns = 200;
+        Ns = 100;
         k = zeros(M, L);
         
         %% (2) draw parameters from the prior (theta_j)
@@ -58,9 +60,9 @@ for iter = 2:niter
             
             %% (3) sample y from the parameters (y_i^j)
             
-            for l = 1:L
+            parfor l = 1:L
                 
-                [count j l]
+%                 [count j l]
                 
                 %             % draw samples for y given theta
                 %             unnorprob_samps = [f(theta_samps(j,:))'; 1];
@@ -85,6 +87,7 @@ for iter = 2:niter
                 
                 ss_samps = [mean(y) var(y)];
                 squareddiff = sum((ss-ss_samps).^2)/length(ss_samps);
+%                 squareddiff = sum((ss-ss_samps).^2);
                 
                 k(j, l) = exp(-squareddiff/epsilon(count));
                 
@@ -104,7 +107,7 @@ for iter = 2:niter
         
     end
     
-    FN = strcat('results_fig1_softabc','_thIter',num2str(iter),'.mat');
+    FN = strcat('results_fig1_softabc_200','_thIter',num2str(iter),'.mat');
     save(FN, 'muhat_softabc', 'yobs', 'theta', 'howmanytheta', 'howmanyepsilon', 'epsilon');
     
 end
@@ -119,13 +122,15 @@ msemat = zeros(20, howmanyepsilon);
 meanofmean_softABC = zeros(howmanyepsilon, howmanytheta, 20);
 
 %%
-for iter = 1:20
-    load(strcat('results_fig1_softabc','_thIter',num2str(iter),'.mat'));
+for iter = 1:niter
+%     load(strcat('results_fig1_softabc','_thIter',num2str(iter),'.mat'));
+    
+    load(strcat('results_fig1_softabc_200','_thIter',num2str(iter),'.mat'));
     
     mse = @(a) sum(bsxfun(@minus, a, theta').^2, 2);
-    figure(2);
-    subplot(2,2,[1 2]); hold on; semilogx(epsilon, muhat_softabc, 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('muhat'); title('fixed length scale = median(obs)');
-    subplot(2,2,[3 4]); loglog(epsilon, mse(muhat_softabc), 'k.--'); hold on;  xlabel('epsilon'); ylabel('mse'); hold on;
+    figure(3);
+    subplot(2,2,[1 2]); hold on; semilogx(epsilon, muhat_softabc, 'b.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('muhat'); title('fixed length scale = median(obs)');
+    subplot(2,2,[3 4]); loglog(epsilon, mse(muhat_softabc), 'b.--'); hold on;  xlabel('epsilon'); ylabel('mse'); hold on;
     
     matminmse_softABC(iter) = min(mse(muhat_softabc));
     msemat(iter,:) = mse(muhat_softabc);
@@ -135,7 +140,10 @@ end
 
 %%
 
-% mean(msemat) = 1.0182    4.3368   14.2430   14.5411   14.6854
-figure(2);
-subplot(2,2,[1 2]); semilogx(epsilon, mean(meanofmean_softABC,3), 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('mean of muhat (20 iterations)');  title('soft ABC');
-subplot(2,2,[3 4]); loglog(epsilon, mean(msemat), 'k.-'); xlabel('epsilon'); ylabel('mean of mse (20 iterations)'); hold on;
+figure(5);
+subplot(2,2,[1 2]); semilogx(epsilon, mean(meanofmean_softABC,3), 'b.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.');set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); hold on; ylabel('mean of muhat (20 iterations)');  title('soft ABC (200 yobs)');
+% subplot(2,2,[3 4]); loglog(epsilon, mean(msemat), 'b.-'); xlabel('epsilon'); ylabel('mean of mse (20 iterations)'); hold on;
+subplot(2,2,[3 4]); loglog(epsilon, mse(mean(meanofmean_softABC,3)), 'b.-'); set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); xlabel('epsilon'); ylabel('mse of mean of muhat (20 iterations)'); hold on;
+
+min(mse(mean(meanofmean_softABC,3)))
+% min(mean(msemat))
