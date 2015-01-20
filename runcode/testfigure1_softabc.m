@@ -1,4 +1,8 @@
 % test softabc
+%
+% Softabc refers to the use of Gaussian kernel on sufficient statistics to create 
+% weights for parameters. No rejection.
+%
 
 clear all;
 clc;

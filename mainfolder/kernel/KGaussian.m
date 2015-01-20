@@ -45,17 +45,16 @@ classdef KGaussian < Kernel
         %end
         
         function s=shortSummary(this)
-            s = sprintf('KGaussian(%.3g)', this.sigma2);
+            s = sprintf('%s(%.3g)', mfilename, this.sigma2);
         end
     end
     
     methods (Static)
-        function Ks=candidates(params)
-            % params is a numeric array
-            Kgauss = KGaussian(params);
-            Ks = num2cell(Kgauss);
-            
-        end
+        %function Ks=candidates(params)
+        %    % params is a numeric array
+        %    Kgauss = KGaussian(params);
+        %    Ks = num2cell(Kgauss);
+        %end
     end
     
     
