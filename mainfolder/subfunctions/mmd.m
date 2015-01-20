@@ -5,6 +5,7 @@ function [mm] = mmd(X, Y, ker)
 %
 % ** TODO: This version of MMD does not yet support large nx, ny. 
 % Not so difficult to fix. Just compute by chunks. Do it later when needed. **
+% TODO: May want to consider unbiased mmd.
 %
 % @author Wittawat
 %
