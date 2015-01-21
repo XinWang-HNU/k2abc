@@ -8,7 +8,7 @@ close all;
 
 %% load data generated from bimodal p(y|theta)
 
-load fig1data_200.mat; 
+load fig1data_400.mat; 
 
 % summary statistic from yobs
 ss = [mean(yobs) var(yobs)];
@@ -17,28 +17,24 @@ ss = [mean(yobs) var(yobs)];
 
 niter = 20;
 
+%%
+
 for iter=1:niter
    
     [iter niter]
     
     %% run rejection-ABC code
     
-    % which we use for sampling y in ABC
-    f = @(a) log(exp(a)+1);
-    maxy = 4;
-    
     % sample theta M times
-    M = 200;
+    M = 100;
     howmanytheta = length(theta);
-%     theta_samps = zeros(M, howmanytheta);
+%     howmanyepsilon = 4;
+%     epsilon = sum(abs(yobs))/length(yobs).* logspace(-3, 0, howmanyepsilon);
+    howmanyepsilon = 4;
+    epsilon = sum(abs(yobs))/length(yobs).* logspace(-2, 0, howmanyepsilon);
     
-    howmanyepsilon = 5;
-    epsilon = logspace(-2, 4, howmanyepsilon);
-    % epsilon = 1000;
-    
-    prior_var = 10*eye(howmanytheta);
-    % theta_selected = zeros(M, howmanytheta);
-    
+    prior_var = 4*eye(howmanytheta);
+   
     muhat_rejectABC = zeros(howmanyepsilon, howmanytheta);
     accptrate = zeros(howmanyepsilon, 1);
     
@@ -47,7 +43,7 @@ for iter=1:niter
         
         % we sample y L times, where each y consists of Ns samples
         %     L = 100;
-        Ns = 1000;
+        Ns = 100;
         %     k = zeros(M, L);
         
         %% (2) draw parameters from the prior (theta_j)
@@ -60,16 +56,12 @@ for iter=1:niter
             
             
             % draw samples for y given theta
-            unnorprob_samps = [f(theta_samps(j,:))'; 1];
+            unnorprob_samps = [f(theta_samps(j,:))'];
             prob_samps = unnorprob_samps./sum(unnorprob_samps);
             
             
             %% (3) sample y from the parameters (y_i^j)
-            
-            %         parfor l = 1:L
-            
-            %             [count j l]
-            
+                        
             % first draw discrete variables [1 4]
             discvar_samps = randsample(maxy, Ns, true, prob_samps);
             
@@ -80,10 +72,7 @@ for iter=1:niter
                 idx_samps = (discvar_samps==i);
                 y(idx_samps) = (i-1) + rand(sum(idx_samps), 1);
             end
-            
-            %y = gen_mvn(theta_samps(j, :), theta_var, Ns);
-            %y = randn(1, Ns)*sqrt(theta_var) + theta_samps(j);
-            
+                        
             %% (4) compare summary statistic whether accept or reject theta
             
             ss_samps = [mean(y) var(y)];
@@ -122,13 +111,19 @@ for iter=1:niter
 
     % save results
     
-    FN = strcat('results_fig1_rejectABC_200','_thIter',num2str(iter),'.mat');
+    FN = strcat('results_fig1_rejectABC_400','_thIter',num2str(iter),'.mat');
     save(FN, 'muhat_rejectABC', 'minmse_rejectABC', 'accptrate', 'yobs', 'theta', 'howmanytheta', 'howmanyepsilon', 'epsilon');
 
    
 end
 
 %% check the results
+
+load fig1data_400.mat; 
+
+howmanytheta = length(theta);
+howmanyepsilon = 4;
+epsilon = sum(abs(yobs))/length(yobs).* logspace(-3, 0, howmanyepsilon);
 
 matminmse_rejectABC = zeros(20,1);
 msemat = zeros(20, howmanyepsilon);
@@ -138,7 +133,7 @@ meanofmean_rejectABC = zeros(howmanyepsilon, howmanytheta, 20);
 %%
 for iter = 1:20
 %     load(strcat('results_fig1_rejectABC','_thIter',num2str(iter),'.mat'));
-    load(strcat('results_fig1_rejectABC_200','_thIter',num2str(iter),'.mat'));
+    load(strcat('results_fig1_rejectABC_400','_thIter',num2str(iter),'.mat'));
     
     mse = @(a) sum(bsxfun(@minus, a, theta').^2, 2);
     figure(3);
@@ -156,9 +151,25 @@ end
 % mean(accptratemat) = 0.0084    0.2038    1.0000    1.0000    1.0000
 % mean(msemat) = 1.6667    1.6489   14.4913   14.7748   14.3310
 
-figure(2);
-subplot(2,2,[1 2]); semilogx(epsilon, mean(meanofmean_rejectABC,3), 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); ylabel('mean of muhat (20 iterations)');  title('rejection ABC (200 yobs)');
-subplot(2,2,[3 4]); loglog(epsilon, mse(mean(meanofmean_rejectABC,3)), 'k.-'); xlabel('epsilon'); set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); ylabel('mse of mean of muhat (20 iterations)'); hold on;
+% figure(5);
+% subplot(2,2,[1 2]); semilogx(epsilon, mean(meanofmean_rejectABC,3), 'k.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); ylabel('mean of muhat');  title('rejection ABC (200 yobs)');
+% subplot(2,2,[3 4]); loglog(epsilon, mse(mean(meanofmean_rejectABC,3)), 'k.-'); xlabel('epsilon'); set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); ylabel('mse of mean of muhat (20 iterations)'); hold on;
+subplot(3,1,[2 3]); semilogx(epsilon, mean(msemat), 'k.-'); xlabel('epsilon'); 
+% set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); ylabel('mse of mean of muhat (20 iterations)'); hold on;
 
-% min(mean(msemat))
-min(mse(mean(meanofmean_rejectABC,3)))
+%%
+min(mean(msemat))
+% min(mse(mean(meanofmean_rejectABC,3)))
+
+bestthetasamps_rejectABC = reshape(squeeze(meanofmean_rejectABC(2,:,:)), length(theta), []);
+
+[mean(bestthetasamps_rejectABC(1,:)) mean(bestthetasamps_rejectABC(2,:)) mean(bestthetasamps_rejectABC(3,:))]
+
+%%
+figure(106);
+hold on;
+subplot(311); hist(bestthetasamps_rejectABC(1,:)); set(gca, 'xlim', [-4 4]); hold on; plot(theta(1), 0:0.01:8, 'r-', mean(bestthetasamps_rejectABC(1,:)),0:0.01:8, 'b-' );
+subplot(312); hist(bestthetasamps_rejectABC(2,:)); set(gca, 'xlim', [-4 4]); hold on; plot(theta(2), 0:0.01:8, 'r-', mean(bestthetasamps_rejectABC(2,:)),0:0.01:8, 'b-' );
+subplot(313); hist(bestthetasamps_rejectABC(3,:)); set(gca, 'xlim', [-4 4]); hold on; plot(theta(3), 0:0.01:8, 'r-', mean(bestthetasamps_rejectABC(3,:)),0:0.01:8, 'b-' );
+
+[mean(bestthetasamps_rejectABC(1,:)) mean(bestthetasamps_rejectABC(2,:)) mean(bestthetasamps_rejectABC(3,:))]

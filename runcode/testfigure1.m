@@ -10,7 +10,7 @@
 % maybe first and second moments only, and fail to capture p(y|theta)
 
 % startup
-
+% 
 % clear all;
 % clc;
 % close all;
@@ -19,26 +19,24 @@
 
 % dimy = 1; % 1d y
 % 
-% maxy = 4;
+% maxy = 3;
 % % theta = randn(maxy-1,1);
-% theta = [1.2 -3 -2]';
+% theta = [0.4 -1  1.2]';
 % 
 % % y \sim p(y|theta)
 % %        = exp(theta(1)) if 0<=y<=1,
 % %        = exp(theta(2)) if 1<y<=2,
 % %        = exp(theta(3)) if 2<y<=3,
-% %        = 1 if 3<y<=4,
 % 
-% nsamps = 200;
+% nsamps = 400;
 % 
-% f = @(a) log(exp(a)+1);
+% % f = @(a) log(exp(a)+1);
+% f = @(a) exp(a);
 % 
-% unnorprob = [f(theta); 1];
-% prob = unnorprob./sum(f(theta)+1);
+% unnorprob = f(theta);
+% prob = unnorprob./sum(f(theta));
 % 
-% % first draw discrete variables [1 4]
 % discvar = randsample(maxy, nsamps, true, prob);
-% % hist(discvar)
 % 
 % % then draw y from uniform distribution in each range
 % yobs = zeros(1, nsamps);
@@ -51,8 +49,7 @@
 % subplot(221); hist(discvar)
 % subplot(222); hist(yobs)
 % 
-% 
-% save(strcat('fig1data_200.mat'), 'yobs', 'theta', 'maxy', 'discvar', 'prob', 'f');
+% save(strcat('fig1data_400.mat'), 'yobs', 'theta', 'maxy', 'discvar', 'prob', 'f');
 
 %%
 
@@ -62,37 +59,34 @@ clc;
 close all;
 
 % load fig1data.mat;
-load fig1data_200.mat;
+load fig1data_400.mat;
 
+%%
 niter = 20;
 
-for iter=18
+for iter=1:niter
     
     [iter niter]
-    
-    %     kernelprs = meddistance(yobs)^2.*[0.1 0.5 1 2 4 8];
-    %     kernelprs = meddistance(yobs)^2;
-    %
-    %     for kkk=1:length(kernelprs)
-    %
-    %         kernelparams = kernelprs(kkk);
-    
-    kernelparams = meddistance(yobs)^2;
-    
+
+%         kernelparams = meddistance(yobs);
+%     kernelparams = meddistance(yobs)^2;
+%     kernelparams = meddistance(yobs)/2;    
+        kernelparams = meddistance(yobs)/3;    
+
     %% run our ABC code
     
     % sample theta M times
-    M = 200;
+    M = 100;
     howmanytheta = length(theta);
     
-    howmanyepsilon = 5;
-    epsilon = logspace(-4, 2, howmanyepsilon);
+    howmanyepsilon = 4;
+    epsilon = sum(abs(yobs))/length(yobs).* logspace(-2, 0, howmanyepsilon);
     
     muhat = zeros(howmanyepsilon,howmanytheta);
     
     ker = KGaussian(kernelparams);
     
-    prior_var = 10*eye(howmanytheta);
+    prior_var = 4*eye(howmanytheta);
     
     %%
     for count = 1:howmanyepsilon
@@ -100,35 +94,25 @@ for iter=18
         [count howmanyepsilon]
         
         % we sample y L times, where each y consists of Ns samples
-        L = 100;
+        L = 50;
         Ns = 100;
         k = zeros(M, L);
         
         %% (2) draw parameters from the prior (theta_j)
         % e.g., fix sigma, and draw mean from a Gaussian
         theta_samps = mvnrnd(zeros(1, howmanytheta), prior_var, M);
-        %theta_samps = randn(M, 1)*sqrt(prior_var) + 2;
-        
-%         tic; 
+
         for j=1:M
-            
-            
+                   
             % draw samples for y given theta
-            unnorprob_samps = [f(theta_samps(j,:))'; 1];
+            unnorprob_samps = [f(theta_samps(j,:))'];
             prob_samps = unnorprob_samps./sum(unnorprob_samps);
-            
-            
+               
             %% (3) sample y from the parameters (y_i^j)
             
             parfor l = 1:L
                 
-                %                     [iter count j l]
-                
-                %             % draw samples for y given theta
-                %             unnorprob_samps = [f(theta_samps(j,:))'; 1];
-                %             prob_samps = unnorprob_samps./sum(unnorprob_samps);
-                
-                % first draw discrete variables [1 4]
+                % first draw discrete variables [1 maxy]
                 discvar_samps = randsample(maxy, Ns, true, prob_samps);
                 % hist(discvar)
                 
@@ -150,26 +134,17 @@ for iter=18
             end
             
         end
-%         toc;
         
         %% (5) compute w_j which gives us posterior mean of theta
         
         wj_numerator = sum(k, 2)/L;
         wj_denominator = sum(sum(k))/L;
         
-        %     muhat(count, :) = sum(wj_numerator.*theta_samps)/wj_denominator;
         muhat(count, :) = sum(bsxfun(@times, wj_numerator, theta_samps))./wj_denominator;
-        
-        %     [theta';  muhat(count, :)]
         
     end
     
-    %         FN = strcat('results_fig1_ourmethod','_kernelparam',num2str(kkk),'_thIter',num2str(iter),'.mat');
-    %         save(FN, 'muhat', 'yobs', 'theta', 'howmanytheta', 'howmanyepsilon', 'epsilon');
-    %
-    %     end
-    
-    FN = strcat('results_fig1_ourmethod_200','_thIter',num2str(iter),'.mat');
+    FN = strcat('results_fig1_ourmethod_400','_thIter',num2str(iter), 'kernelparam', num2str(kernelparams), '.mat');
     save(FN, 'muhat', 'yobs', 'theta', 'howmanytheta', 'howmanyepsilon', 'epsilon');
     
 end
@@ -199,6 +174,13 @@ end
 
 %% check the results
 
+load fig1data_400.mat;
+
+kernelparams = meddistance(yobs)/2
+howmanytheta = length(theta);
+howmanyepsilon = 4;
+epsilon = sum(abs(yobs))/length(yobs).* logspace(-2, 0, howmanyepsilon);
+
 maxiter = 20;
 matminmse = zeros(maxiter,1);
 msemat = zeros(maxiter, howmanyepsilon);
@@ -211,11 +193,11 @@ for iter = 1:maxiter
 %     load(strcat('results_fig1_ourmethod','_thIter',num2str(iter),'.mat'))
 %     load(strcat('results_fig1_ourmethod','_kernelparam',num2str(kkk),'_thIter',num2str(iter),'.mat'))
 
-    load(strcat('results_fig1_ourmethod_200','_thIter',num2str(iter),'.mat'))
+    load(strcat('results_fig1_ourmethod_400','_thIter', num2str(iter), 'kernelparam', num2str(kernelparams), '.mat'))
 
     mse = @(a) sum(bsxfun(@minus, a, theta').^2, 2);
     figure(3);
-    subplot(2,2,[1 2]); hold on; semilogx(epsilon, muhat, 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); ylabel('muhat'); title('fixed length scale = median(obs)');
+    subplot(2,2,[1 2]); semilogx(epsilon, muhat, 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.');  hold on;  ylabel('muhat'); title('fixed length scale = median(obs)');
     subplot(2,2,[3 4]); loglog(epsilon, mse(muhat), 'r.--'); xlabel('epsilon'); ylabel('mse'); hold on;
 
     matminmse(iter) = min(mse(muhat));
@@ -227,10 +209,20 @@ end
 
 %%
 
-figure(5);
-subplot(2,2,[1 2]); semilogx(epsilon, mean(meanofmean_ours,3), 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); ylabel('mean of muhat (20 iterations)');  title('ours');
-% subplot(2,2,[3 4]); loglog(epsilon, mean(msemat), 'r.-'); xlabel('epsilon'); ylabel('mean of mse (20 iterations)'); hold on;
-subplot(2,2,[3 4]); loglog(epsilon, mse(mean(meanofmean_ours,3)), 'r.-'); set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); xlabel('epsilon'); ylabel('mse of mean of muhat (20 iterations)'); hold on;
+figure(4);
+% subplot(2,2,[1 2]); semilogx(epsilon, mean(meanofmean_ours,3), 'r.-', epsilon, repmat(theta', howmanyepsilon,1), 'k.'); set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); ylabel('mean of muhat (20 iterations)');  title('ours');
+subplot(3,1,[2 3]); semilogx(epsilon, mean(msemat), 'r.-'); xlabel('epsilon'); ylabel('mean of mse (20 iterations)'); hold on;
+% subplot(2,2,[3 4]); loglog(epsilon, mse(mean(meanofmean_ours,3)), 'r.-'); set(gca, 'xlim', [min(epsilon)/2 max(epsilon)*1.5]); xlabel('epsilon'); ylabel('mse of mean of muhat (20 iterations)'); hold on;
 
-% [min(mean(msemat))]
-min(mse(mean(meanofmean_ours,3)))
+%% histogram results
+
+bestthetasamps_ours = reshape(squeeze(meanofmean_ours(1,:,:)), length(theta), []);
+
+subplot(311); hist(bestthetasamps_ours(1,:)); set(gca, 'xlim', [-4 4]); hold on; plot(theta(1), 0:0.01:8, 'r-', mean(bestthetasamps_ours(1,:)),0:0.01:8, 'b-' );
+subplot(312); hist(bestthetasamps_ours(2,:)); set(gca, 'xlim', [-4 4]); hold on; plot(theta(2), 0:0.01:8, 'r-', mean(bestthetasamps_ours(2,:)),0:0.01:8, 'b-');
+subplot(313); hist(bestthetasamps_ours(3,:)); set(gca, 'xlim', [-4 4]); hold on; plot(theta(3), 0:0.01:8, 'r-', mean(bestthetasamps_ours(3,:)),0:0.01:8, 'b-');
+
+[mean(bestthetasamps_ours(1,:)) mean(bestthetasamps_ours(2,:)) mean(bestthetasamps_ours(3,:))]
+
+[min(mean(msemat))]
+% min(mse(mean(meanofmean_ours,3)))
