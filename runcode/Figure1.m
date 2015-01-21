@@ -19,11 +19,14 @@ clear all;
 clc;
 close all;
 
-maxiter = 10;
+maxiter = 20;
 
 whichmethod = 'ssf_kernel_abc';
+% whichmethod = 'rejection_abc';
+% whichmethod = 'ssb_abc';
+% whichmethod = 'ssf_abc';
 
-opts.likelihood_func = @like_sigmoid_pw_const;
+opts.likelihood_func = 'like_sigmoid_pw_const';
 opts.true_theta =  [1, -3, 2]';
 opts.num_obs = 400;
 opts.num_theta_samps = 1000;
@@ -31,6 +34,7 @@ opts.num_pseudodata_samps = 400;
 opts.epsilon_list = logspace(-3, 0, 9);
 opts.prior_var = 4; 
 
+%%
 for iter = 1 : maxiter
     
     [iter maxiter]
