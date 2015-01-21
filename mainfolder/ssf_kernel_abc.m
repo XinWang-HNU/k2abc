@@ -37,10 +37,11 @@ op.epsilon_list = myProcessOptions(op, 'epsilon_list', default_eps_list);
 epsilon_list = op.epsilon_list;
 
 % number of latent variables (i.e., theta) of interest to draw
-op.num_latent_draws = myProcessOptions(op, 'num_latent_draws', 100);
+op.num_latent_draws = myProcessOptions(op, 'num_latent_draws', 200);
 num_latent_draws = op.num_latent_draws;
 
 % number of pseudo data to draw e.g., the data drawn from the likelihood function
+% for each drawn latent variable.
 op.num_pseudo_data = myProcessOptions(op, 'num_pseudo_data', 300);
 num_pseudo_data = op.num_pseudo_data;
 

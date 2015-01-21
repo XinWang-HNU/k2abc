@@ -23,7 +23,7 @@ op.proposal_dist = @(n)randn(1, n)*sqrt(5);
 % drawn latent vector and n is the number of samples to draw.
 % Gaussian likelihood 
 op.likelihood_func = likelihood_func;
-op.epsilon_list = logspace(-2, 0, 6);
+op.epsilon_list = logspace(-2, 1, 9);
 % number of latent variables (i.e., theta) of interest to draw
 op.num_latent_draws = 200;
 % number of pseudo data to draw e.g., the data drawn from the likelihood function
