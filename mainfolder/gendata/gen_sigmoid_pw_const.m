@@ -12,7 +12,7 @@ function dat = gen_sigmoid_pw_const(params, n, seed)
 %           (1) dat.samps: samples
 %           (2) dat.probs: true probabilities
 
-if nargin < 4
+if nargin < 3
     seed = 1;
 end
 
