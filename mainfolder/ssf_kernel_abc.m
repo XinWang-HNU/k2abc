@@ -6,6 +6,11 @@ function [ results, op ] = ssf_kernel_abc( Obs, op )
 %   - Obs : D x M where D is dimension and M is the number of observations
 %   - op : a struct specifying options. See the code for possible options.
 %
+% Out:
+%   - results : a struct containing latent samples and their weights for each 
+%   epsilon
+%   - op : option struct.
+%
 
 % random seed. 1 by default.
 op.seed = myProcessOptions(op, 'seed', 1);
@@ -77,7 +82,7 @@ for j=1:num_latent_draws
 end
 
 % num_latent_draws x length(epsilon_list)
-unnorm_weights = exp(-(mmds.^mmd_exponent)*(1./epsilon_list) );
+unnorm_weights = exp(-(mmds.^mmd_exponent)*(1./epsilon_list(:)') );
 % normalized weights
 norm_weights = bsxfun(@rdivide, unnorm_weights, sum(unnorm_weights, 1) );
 

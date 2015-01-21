@@ -1,6 +1,6 @@
 %function [ ] = demo_ssf_kernel_abc( )
 %DEMO_SSF_KERNEL_ABC Demonstrate how to use ssf_kernel_abc
-seed = 2;
+seed = 5;
 oldRng = rng();
 rng(seed);
 
@@ -18,7 +18,7 @@ op.seed = seed;
 % func_handle : n -> (d' x n) where n is the number of samples to draw.
 % Return a d' x n matrix.
 % 0-mean Gaussian proposal
-op.proposal_dist = @(n)randn(1, n)*sqrt(5);
+op.proposal_dist = @(n)randn(1, n)*sqrt(8);
 % Likelihood function handle. func : (theta, n) -> (d'' x n) where theta is one 
 % drawn latent vector and n is the number of samples to draw.
 % Gaussian likelihood 
@@ -27,6 +27,7 @@ op.epsilon_list = logspace(-2, 1, 9);
 % number of latent variables (i.e., theta) of interest to draw
 op.num_latent_draws = 200;
 % number of pseudo data to draw e.g., the data drawn from the likelihood function
+% for each epsilon
 op.num_pseudo_data = 200;
 
 % width squared.

@@ -13,18 +13,28 @@ assert(isa(ker, 'Kernel'));
 assert(isnumeric(X));
 assert(isnumeric(Y));
 
+nx = size(X, 2);
 Kx = ker.eval(X, X);
-xx = mean(Kx(:));
+diagIx = 1:(nx+1):numel(Kx);
+xx = (sum(Kx(:)) - sum(Kx(diagIx)) )/(nx*(nx-1));
+%xx = mean(Kx(:));
 clear Kx
 
+ny = size(Y, 2);
 Ky = ker.eval(Y, Y);
-yy = mean(Ky(:));
+diagIy = 1:(ny+1):numel(Ky);
+yy = (sum(Ky(:)) - sum(Ky(diagIy)) )/(ny*(ny-1));
+%yy = mean(Ky(:));
 clear Ky
 
 % nx x ny
 Kxy = ker.eval(X, Y);
 xy = mean(Kxy(:));
 clear Kxy
-mm = sqrt(xx - 2*xy + yy);
+
+% unbiased mmd can be negative ? sqrt(negative) gives an imaginary number ....
+%
+mm = real(sqrt(xx - 2*xy + yy));
+
 
 end
