@@ -1,5 +1,7 @@
 %function [ ] = demo_ssb_reject_abc( )
 %DEMO_SSB_REJECT_ABC Demonstrate how to do a summary statistic-based rejection ABC
+%@author Wittawat
+%
 seed = 4;
 oldRng = rng();
 rng(seed);
@@ -77,6 +79,6 @@ hold off
 
 
 % change seed back 
-rng(seed);
+rng(oldRng);
 %end
 
