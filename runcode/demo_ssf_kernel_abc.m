@@ -1,6 +1,6 @@
 %function [ ] = demo_ssf_kernel_abc( )
 %DEMO_SSF_KERNEL_ABC Demonstrate how to use ssf_kernel_abc
-seed = 5;
+seed = 4;
 oldRng = rng();
 rng(seed);
 
@@ -28,7 +28,7 @@ op.epsilon_list = logspace(-2, 1, 9);
 op.num_latent_draws = 200;
 % number of pseudo data to draw e.g., the data drawn from the likelihood function
 % for each epsilon
-op.num_pseudo_data = 200;
+op.num_pseudo_data = 300;
 
 % width squared.
 width2 = meddistance(obs)^2;
