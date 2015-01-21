@@ -1,6 +1,7 @@
-function [ results, op ] = ssf_abc( Obs, op )
-%SSF_ABC Generic function for summary statistic-free ABC which relies on a 
-%measure on observations and pseudo data. The measure operates on two sets.
+function [ results, op ] = ssb_abc( Obs, op )
+%SSB_ABC Generic function for summary statistic-based ABC which relies on a 
+%measure on summary statistics of observations and pseudo data. 
+%The measure operates on two sets of summary statistics.
 %   - This function supports both rejection and soft ABC.
 %
 % @author Wittawat
@@ -35,20 +36,34 @@ default_eps_list = logspace(-2, 0, 4);
 op.epsilon_list = myProcessOptions(op, 'epsilon_list', default_eps_list);
 epsilon_list = op.epsilon_list;
 
-% a function for measuring the distance of drawn pseudo data and the observations
+
+% a function for computing a vector of summary statistics from a set of samples
+% func : (d x n) -> p x 1 vector for some p
+%
+if isOptionEmpty(op, 'stat_gen_func')
+    error('stat_gen_func cannot be empty');
+end
+stat_gen_func = op.stat_gen_func;
+assert(isa(stat_gen_func, 'function_handle'), ...
+    'stat_gen_func must be a function handle.');
+
+% a function for measuring the distance of two sets of summary statistics 
+% of drawn pseudo data and the observations.
 % Obs. Depending on the function specified, we can have stat-based / free ABC.
 %
-% func : (d x n1) , (d x n2)  -> a distance
+% func: (p-vector, p-vector) -> distance
 % The distance will be fed to the threshold_func
 %
-if isOptionEmpty(op, 'pseudo_data_measure')
-    error('pseudo_data_measure cannot be empty');
-end
-pseudo_data_measure = op.pseudo_data_measure;
-assert(isa(pseudo_data_measure, 'function_handle'), ...
-    'pseudo_data_measure must be a function handle.');
 
-% a function taking a distance from pseudo_data_measure and an epsilon, 
+% Not needed. func : (p x m1) , (p x m2)  -> m1 x m2 distance matrix
+if isOptionEmpty(op, 'stat_dist_func')
+    error('stat_dist_func cannot be empty');
+end
+stat_dist_func = op.stat_dist_func;
+assert(isa(stat_dist_func, 'function_handle'), ...
+    'stat_dist_func must be a function handle.');
+
+% a function taking a distance from stat_dist_func and an epsilon, 
 % and output a weight. If the weight is 0-1, we have a rejection ABC.
 % func : (  a-vector of distances, b-vector of epsilons ) -> a x b matrix
 if isOptionEmpty(op, 'threshold_func')
@@ -71,18 +86,20 @@ latent_samples = proposal_dist(num_latent_draws);
 assert(size(latent_samples, 2) == num_latent_draws, ...
     'proposal_dist does not return a correct number of samples');
 
-% Distance between sets of pseudo_data and Obs for each sampled latent variable
+obs_stat = stat_gen_func(Obs);
+% Distance between stat of pseudo_data and Obs for each sampled latent variable
 dists = zeros(num_latent_draws, 1);
-% draw pseudo_data once 
 for j=1:num_latent_draws
+    % draw pseudo_data once 
     latent_j = latent_samples(:, j);
     Pseudo_j = likelihood_func(latent_j, num_pseudo_data);
     assert(size(Pseudo_j, 2)==num_pseudo_data, ...
         'likelihood_func does not return a correct number of pseudo_data');
     assert(size(Pseudo_j, 1) == size(Obs, 1), ...
         'Sampled pseudo_data dimension does not match that of observations');
+    pseudo_stat_j = stat_gen_func(Pseudo_j);
     % call distance measure function
-    dists(j) = pseudo_data_measure(Pseudo_j, Obs );
+    dists(j) = stat_dist_func(pseudo_stat_j, obs_stat );
 end
 
 % num_latent_draws x length(epsilon_list)
@@ -96,6 +113,7 @@ results.unnorm_weights = unnorm_weights;
 
 % change seed back 
 rng(oldRng);
+
 
 
 end
