@@ -39,7 +39,7 @@ op.mmd_exponent = 2;
 
 [R, op] = ssf_kernel_abc(obs, op);
 % R contains latent samples and their weights for each epsilon.
-%
+
 figure 
 hold on 
 cols = 3;
@@ -73,6 +73,7 @@ hold off
 % compute means of theta 
 
 % change seed back 
-rng(seed);
+% rng(seed);
+rng(oldRng);
 %end
 

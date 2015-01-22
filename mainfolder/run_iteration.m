@@ -28,7 +28,6 @@ end
 % op. All options are described in each subfunction below.
 op.seed = iter;
 op.proposal_dist = @(n)randn(length(opts.true_theta), n)*sqrt(opts.prior_var);
-op.epsilon_list = opts.epsilon_list;
 op.num_latent_draws = opts.num_theta_samps;
 op.num_pseudo_data = opts.num_pseudodata_samps;
 
@@ -38,9 +37,11 @@ if strcmp(num2str(whichmethod),'ssf_kernel_abc')
     
     % width squared.
     % width2 = meddistance(dat.samps)^2/2;
-    width2 = meddistance(dat.samps)/2;
+    width2 = meddistance(dat.samps)/4;
     op.mmd_kernel = KGaussian(width2);
     op.mmd_exponent = 2;
+    
+    op.epsilon_list = logspace(-3, 0, 9);
     
     [R, op] = ssf_kernel_abc(dat.samps, op);
     
@@ -74,9 +75,13 @@ elseif strcmp(num2str(whichmethod),'rejection_abc')
     
     for ei = 1:num_eps
         idx_accpt_samps = R.unnorm_weights(:, ei);
-        accpt_rate(ei) = sum(idx_accpt_samps);
-        post_mean(ei, :) = mean(R.latent_samples(:, idx_accpt_samps), 2) ;
-        [~, prob_post_mean(ei,:)] = like_sigmoid_pw_const(post_mean(ei,:), 1);
+        accpt_rate(ei) = sum(idx_accpt_samps)/opts.num_theta_samps;
+        
+        if accpt_rate(ei)>0
+            post_mean(ei, :) = mean(R.latent_samples(:, idx_accpt_samps), 2) ;
+            [~, prob_post_mean(ei,:)] = like_sigmoid_pw_const(post_mean(ei,:), 1);
+        end
+        
     end
     
     results.accpt_rate = accpt_rate;
@@ -115,3 +120,4 @@ end
 results.post_mean = post_mean;
 results.prob_post_mean = prob_post_mean;
 results.dat = dat; 
+results.epsilon_list = op.epsilon_list; 

@@ -17,7 +17,7 @@
 
 clear all;
 clc;
-close all;
+% close all;
 
 maxiter = 20;
 
@@ -27,28 +27,28 @@ whichmethod = 'ssf_kernel_abc';
 % whichmethod = 'ssf_abc';
 
 opts.likelihood_func = 'like_sigmoid_pw_const';
-opts.true_theta =  [1, -3, 2]';
+opts.true_theta =  [1, -3,  2, -5, 4]';
 opts.num_obs = 400;
 opts.num_theta_samps = 1000;
 opts.num_pseudodata_samps = 400;
-opts.epsilon_list = logspace(-3, 0, 9);
 opts.prior_var = 4; 
 
 %%
-for iter = 1 : maxiter
-    
-    [iter maxiter]
-    
-    results = run_iteration(whichmethod, opts, iter);
-    
-    % save results 
-    save(strcat('Fig1_method: ', num2str(whichmethod), '_thIter', num2str(iter), '.mat'), 'results');
-    
-end
+% for iter = 1 : maxiter
+%     
+%     [iter maxiter]
+%     
+%     results = run_iteration(whichmethod, opts, iter);
+%     
+% %     save results 
+%     save(strcat('Fig1_method: ', num2str(whichmethod), '_thIter', num2str(iter), '.mat'), 'results');
+%     
+% end
 
 %% visualization
 
-num_eps = length(opts.epsilon_list);
+load(strcat('Fig1_method: ', num2str(whichmethod), '_thIter', num2str(1), '.mat'));
+num_eps = length(results.epsilon_list);
 cols = length(opts.true_theta);
 
 msemat_probs = zeros(maxiter, num_eps);
@@ -67,21 +67,29 @@ for iter  =1:maxiter
     
 end
 
-subplot(4,3,1); hist(results.dat.samps); title('400 yobs');  set(gca, 'xlim', [0 3]);
-subplot(4,3,2);  bar(results.dat.probs, 'r'); title('true prob'); set(gca, 'ylim', [0 max(results.dat.probs).*1.2]);
-% mse plot
-subplot(4,3,6);
+
+subplot(4,3,1); hist(results.dat.samps); title('400 yobs');  set(gca, 'xlim', [0 length(opts.true_theta)]);
+subplot(4,3,2);  bar(results.dat.probs, 'r'); title('true prob'); set(gca, 'ylim', [0 max(results.dat.probs).*1.2],  'xlim', [0 length(opts.true_theta)+1]);
+
 mean_prob = mean(msemat_probs); 
 var_prob = var(msemat_probs);
-errorbar(opts.epsilon_list, mean_prob, sqrt(var_prob), '.-'); 
-set(gca, 'xscale', 'log', 'xlim', [min(opts.epsilon_list)*0.9 max(opts.epsilon_list)*1.2])
-
 [~, whichepsilonisthebest] = min(mean_prob); 
 bestmean = mean(est_probs_mat(whichepsilonisthebest, :, :),3);
-subplot(4,3,5); bar(bestmean, 'b');  set(gca, 'ylim', [0 max(results.dat.probs).*1.2]);
-
 dat_sim = like_piecewise_const(bestmean, opts.num_obs); 
-subplot(4,3,4); hist(dat_sim); title('400 simulated');  set(gca, 'xlim', [0 3]);
 
+% ours (4,5,6), rejction (7 8 9), 
+if strcmp(num2str(whichmethod),'ssf_kernel_abc')
+    idx_strt = 4;
+elseif strcmp(num2str(whichmethod),'rejection_abc')
+    idx_strt = 7;
+elseif strcmp(num2str(whichmethod),'ssb_abc')
+    idx_strt = 10;
+end
+
+subplot(4,3,idx_strt); hist(dat_sim); title('400 simulated');  set(gca, 'xlim', [0 length(opts.true_theta)]); ylabel(whichmethod);
+subplot(4,3,idx_strt+1); bar(bestmean, 'b');  set(gca, 'ylim', [0 max(results.dat.probs).*1.2],  'xlim', [0 length(opts.true_theta)+1]); title('est prob')
+subplot(4,3,idx_strt+2); errorbar(results.epsilon_list, mean_prob, sqrt(var_prob), '.-');
+set(gca, 'xscale', 'log', 'xlim', [min(results.epsilon_list)*0.9 max(results.epsilon_list)*1.2], 'ylim', [0 0.2]); title('error on prob'); 
+% xlabel('epsilon')
 
 
