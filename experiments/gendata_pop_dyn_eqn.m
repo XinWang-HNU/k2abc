@@ -51,5 +51,6 @@ for i = 1 : n+burnin
 end
 
 dat = dat(end-n+1:end);
+dat = dat';
 
 % rng(oldRng);

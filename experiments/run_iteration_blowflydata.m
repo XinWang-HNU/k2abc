@@ -8,32 +8,20 @@ function results = run_iteration_blowflydata(whichmethod, opts, iter)
 %            opts.num_obs: # of observations (actual observation)
 %            opts.num_theta_samps: # of samples for theta
 %            opts.num_pseudodata_samps: # of samples for pseudo-data
-%            opts.epsilon_list : list of epsilon to test 
-%            opts.prior_var: prior variance to draw theta
+%            opts.dim_theta: dimensionality of theta, it's 6 in this case
+%            opts.yobs: observed data
 % (3) seed number
 
 %% (1) generate observations
 
-if strcmp(num2str(opts.likelihood_func),'like_sigmoid_pw_const')
-    op = struct();
-    op.likelihood_func = @like_sigmoid_pw_const;
-    dat = gen_sigmoid_pw_const(opts.true_theta, opts.num_obs, iter);
-end
-% figure(2);
-% hist(dat.samps)
-
-%% (2) test the chosen algorithm
-
 % op. All options are described in each subfunction below.
 op.seed = iter;
 
-alpha = ones(length(opts.true_theta),1);
-% samps = sample_from_dirichlet(alpha, n)
-op.proposal_dist = @(n) sample_from_dirichlet(alpha,n);
-% op.proposal_dist = @(n)randn(length(opts.true_theta), n)*sqrt(opts.prior_var);
-
+op.likelihood_func = @ gendata_pop_dyn_eqn; 
+op.proposal_dist = @(n) sample_from_prior_blowflydata(n); 
 op.num_latent_draws = opts.num_theta_samps;
 op.num_pseudo_data = opts.num_pseudodata_samps;
+op.dim_theta = opts.dim_theta; 
 
 if strcmp(num2str(whichmethod),'ssf_kernel_abc')
     
@@ -41,15 +29,15 @@ if strcmp(num2str(whichmethod),'ssf_kernel_abc')
     
     % width squared.
 %     width2 = meddistance(dat.samps)^2/2;
-     width2 = meddistance(dat.samps)/32;
+     width2 = meddistance(opts.yobs)/32;
     op.mmd_kernel = KGaussian(width2);
     op.mmd_exponent = 2;
     
     op.epsilon_list = logspace(-3, 0, 9);
     
-    [R, op] = ssf_kernel_abc(dat.samps, op);
+    [R, op] = ssf_kernel_abc(opts.yobs, op);
     
-    cols = length(opts.true_theta);
+    cols = op.dim_theta;
     num_eps = length(op.epsilon_list);
     post_mean = zeros(num_eps, cols);
     post_var = zeros(num_eps, cols);
