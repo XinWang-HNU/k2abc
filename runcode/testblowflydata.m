@@ -22,9 +22,13 @@ load ../experiments/flydata.mat
 % sig_p = params(5);
 % tau = parmas(6); 
 
+
+logparams = [ 3.76529501 -1.03266828  5.46587492 -0.40094812 -0.96334847  log(7) ]; 
+
+
 % logparams = [  2.20359284,  -0.27877481,   9.59734467,   0.23639181,        -0.21054363,  log(21)        ];
 % logparams = [  4.13014314,  -0.28815957,   7.65188285,   1.66995813,  -0.49799054,  log(10)];
-logparams = [0.89704569,  -0.62841292,   7.20992833,   0.93892478,  -0.73770579,  log(25)];
+% logparams = [0.89704569,  -0.62841292,   7.20992833,   0.93892478,  -0.73770579,  log(25)];
 % logparams = log([4, 0.2, 450, 0.5, 1.5, 13]);
 % logparams = [1.9, -1.9, 5.9, -0.75, -0.5, log(14)];
 
@@ -36,7 +40,7 @@ simuldat = gendata_pop_dyn_eqn(logparams, n);
 % plot(simuldat/1000)
 subplot(211); plot(flydata/1000); title('true data');
 subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat./1000, 'r-'); title('simulated data');
-set(gca, 'ylim', [0 10])
+set(gca, 'ylim', [0 max(simuldat/1000)])
 
 
 
