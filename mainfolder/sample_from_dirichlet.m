@@ -9,6 +9,9 @@ function samps = sample_from_dirichlet(alpha, n)
 % (1) alpha : concentration param
 % (2) n: number of samps to draw
 
+if ~all(alpha==1)
+    error('Only alpha=[1,1,..1] is supported currently.')
+end
 dim_samp = length(alpha);
 samps_before_normalisation = rand(dim_samp, n);
 samps = bsxfun(@times, samps_before_normalisation, 1./sum(samps_before_normalisation));
