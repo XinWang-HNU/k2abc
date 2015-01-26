@@ -22,16 +22,16 @@ load ../experiments/flydata.mat
 % tau = parmas(6); 
 
 %%%%%%%%% this is what Ted's code gives me (best in terms of mse on ss %%%%%%%%
-% logparams = [ 3.76529501 -1.03266828  5.46587492 -0.40094812 -0.96334847  log(7) ]; 
+logparams = [ 3.76529501 -1.03266828  5.46587492 -0.40094812 -0.96334847  log(7) ]; 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 n = length(flydata);
 
-% simuldat = gendata_pop_dyn_eqn(exp(logparams), n);
-% 
-% subplot(211); plot(flydata/1000); title('true data');
-% subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat./1000, 'r-'); title('simulated data');
-% set(gca, 'ylim', [0 max(simuldat/1000)])
+simuldat = gendata_pop_dyn_eqn(exp(logparams), n);
+
+subplot(211); plot(flydata/1000); title('true data');
+subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat./1000, 'r-'); title('simulated data');
+set(gca, 'ylim', [0 max(simuldat/1000)])
 
 %% test ssf-abc
 
