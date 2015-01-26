@@ -23,12 +23,13 @@ likelihood_func = @(theta, n)exprnd(theta, 1, n);
 proposal_dist = @(n)unifrnd(0.1, 10, 1, n);
 % a function for computing a vector of summary statistics from a set of samples
 % func : (d x n) -> p x 1 vector for some p
-stat_gen_func = @(data) mean(data, 2);
+%stat_gen_func = @(data) mean(data, 2);
+stat_gen_func = @(data) geomean(data, 2);
 
 % kabc needs a training set containing (summary stat, parameter) pairs.
 % construct a training set
 num_latent_draws = 400; % this is also the training size
-num_pseudo_data = 200;
+num_pseudo_data = 300;
 train_params = proposal_dist(num_latent_draws);
 train_stats = zeros(1, num_latent_draws);
 % for each single parameter, we need to construct a summary statistic of 
@@ -37,8 +38,7 @@ for i=1:size(train_params, 2)
     theta = train_params(:, i);
     observations = likelihood_func(theta, num_pseudo_data);
     stat = stat_gen_func(observations);
-    % say we also have some zero-mean noise in our stat.
-    train_stats(:, i) = stat + randn(1);
+    train_stats(:, i) = stat;
 end
 
 
@@ -56,7 +56,7 @@ op.kabc_reg_list = 10.^(-4:2:3)/sqrt(ntr);
 op.kabc_cv_fold = 3;
 
 % a list of Gaussian widths squared to be used as candidates for Gaussian kernel
-op.kabc_gwidth2_list = [1/8, 1/4, 1, 2].* (meddistance(train_stats).^2)
+op.kabc_gwidth2_list = [1/8, 1/4, 1, 2].* (meddistance(train_stats).^2);
 
 % ---- training ------
 [R, op] = kabc_cond_embed(train_stats, train_params, op);
@@ -66,7 +66,7 @@ op.kabc_gwidth2_list = [1/8, 1/4, 1, 2].* (meddistance(train_stats).^2)
 % ---- test phase --------------
 % generate some observations
 % Try to play with true_theta and check the result.
-true_theta = 4;
+true_theta = 5;
 num_obs = 200;
 obs = likelihood_func(true_theta, num_obs );
 observed_stat = stat_gen_func(obs);
