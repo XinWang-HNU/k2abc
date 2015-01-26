@@ -1,7 +1,7 @@
 % population dynamic equation to generate data for blowfly data
 % mijung wrote on jan 23, 2015
 
-function dat = gendata_pop_dyn_eqn(logparams, n)
+function dat = gendata_pop_dyn_eqn(params, n)
 
 % inputs
 %         (1) logparams: theta in log
@@ -17,7 +17,7 @@ function dat = gendata_pop_dyn_eqn(logparams, n)
 % rng(seed);
 
 % transform logparams to params
-params = exp(logparams);
+% params = exp(logparams);
 % params are in this order
 P = params(1);
 delta = params(2);
@@ -25,6 +25,10 @@ N0 = params(3);
 sig_d = params(4);
 sig_p = params(5);
 tau = round(params(6));
+
+if tau==0
+    tau = tau +1;
+end
 
 lag = tau;
 
