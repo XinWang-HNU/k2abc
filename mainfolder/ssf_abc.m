@@ -75,6 +75,12 @@ assert(size(latent_samples, 2) == num_latent_draws, ...
 dists = zeros(num_latent_draws, 1);
 % draw pseudo_data once 
 for j=1:num_latent_draws
+    
+    % visualization of sample number
+    if rem(j, 100)==0 % every 100th number will be shown 
+        [j num_latent_draws]
+    end
+    
     latent_j = latent_samples(:, j);
     Pseudo_j = likelihood_func(latent_j, num_pseudo_data);
     assert(size(Pseudo_j, 2)==num_pseudo_data, ...
