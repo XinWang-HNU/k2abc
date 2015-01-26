@@ -28,12 +28,16 @@ if strcmp(num2str(whichmethod),'ssf_kernel_abc')
     %% (1) ssf_kernel_abc
     
     % width squared.
-%     width2 = meddistance(dat.samps)^2/2;
-     width2 = meddistance(opts.yobs)/32;
+%       width2 = meddistance(opts.yobs)^2*3;
+%    width2 = meddistance(opts.yobs)^2;
+%      width2 = meddistance(opts.yobs)^2;
+    width2 = opts.width2; 
     op.mmd_kernel = KGaussian(width2);
     op.mmd_exponent = 2;
     
-    op.epsilon_list = logspace(-3, 0, 9);
+    op.epsilon_list = logspace(-5, 0, 9);
+%     op.epsilon_list = op.epsilon_list(1); 
+%     op.epsilon_list = 1e-3; 
     
     [R, op] = ssf_kernel_abc(opts.yobs, op);
     
@@ -43,10 +47,11 @@ if strcmp(num2str(whichmethod),'ssf_kernel_abc')
     post_var = zeros(num_eps, cols);
 %     prob_post_mean = zeros(num_eps, cols);
     
-    for ei = 1:num_eps    
-        post_mean(ei,:) = R.latent_samples*R.norm_weights(:, ei) ;
-        post_var(ei,:) = (R.latent_samples.^2)*R.norm_weights(:, ei) - (post_mean(ei,:).^2)'; 
-%         [~, prob_post_mean(ei,:)] = like_sigmoid_pw_const(post_mean(ei,:), 1); 
+    for ei = 1:num_eps  
+        latent_samples = R.latent_samples; 
+        post_mean(ei,:) = latent_samples*R.norm_weights(:, ei) ;
+        post_var(ei,:) = (latent_samples.^2)*R.norm_weights(:, ei) - (post_mean(ei,:).^2)'; 
+
     end
     
 elseif strcmp(num2str(whichmethod),'rejection_abc')
@@ -119,5 +124,6 @@ end
 results.post_mean = post_mean;
 results.post_var = post_var;
 % results.prob_post_mean = prob_post_mean;
-results.dat = dat; 
+% results.dat = dat; 
+results.R = R; 
 results.epsilon_list = op.epsilon_list; 
