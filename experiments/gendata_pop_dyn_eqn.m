@@ -37,18 +37,20 @@ dat = zeros(lag+n+burnin,1);
 
 dat(1:lag) = 180*ones(lag,1);
 
+
+% draw for eps
+eps_s = gamrnd(1/(sig_d^2), sig_d^2, 1, n+burnin);
+
+% draw for e
+e_s = gamrnd(1/(sig_p^2), sig_p^2, 1, n+burnin);
 for i = 1 : n+burnin
     
     t = i + lag ;
     
     %     eps = 1;
     %     e = 1;
-    
-    % draw for eps
-    eps = gamrnd(1/(sig_d^2), sig_d^2);
-    
-    % draw for e
-    e = gamrnd(1/(sig_p^2), sig_p^2);
+    eps = eps_s(i);
+    e = e_s(i);
     
     tau_t = t - lag;
     dat(t) = P*dat(tau_t)*exp(-dat(tau_t)/N0)*e + dat(t-1)*exp(-delta*eps);

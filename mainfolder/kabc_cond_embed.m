@@ -54,13 +54,23 @@ default_gwidth2s = [1/2, 1, 2].* (meddistance(stats).^2);
 op.kabc_gwidth2_list = myProcessOptions(op, 'kabc_gwidth2_list', default_gwidth2s);
 gwidth2_list = op.kabc_gwidth2_list;
 
+% number of subsamples to use for cross validation. This is for speeding up 
+% the computation in cross validation. After the best parameter combination 
+% is chosen, full dataset will be used to train.
+op.kabc_cv_num_subsamples = myProcessOptions(op, 'kabc_cv_num_subsamples', ...
+    min(n, 5000) );
+cv_subsamples = op.kabc_cv_num_subsamples;
+
 % partitioning the data for CV
 % 0-1 fold x n matrix
-I = strafolds(n, cv_fold, seed );
+Icv = strafolds(cv_subsamples, cv_fold, seed );
+Isub = randperm(n, cv_subsamples);
+% subsamples for speeding up cross validation
+sub_stats = stats(:, Isub);
+sub_params = params(:, Isub);
 % distance matrix only once.
-% TODO: Fix this. *** Assume n is not too large ****
-sumStat2 = sum(stats.^2, 1);
-Dist2 = bsxfun(@plus, sumStat2, sumStat2') - 2*stats'*stats;
+sumStat2 = sum(sub_stats.^2, 1);
+Dist2 = bsxfun(@plus, sumStat2, sumStat2') - 2*sub_stats'*sub_stats;
 
 CVErr = zeros(cv_fold, length(gwidth2_list), length(reg_list));
 % linsolve option
@@ -69,13 +79,13 @@ linsolve_opts = struct();
 %linsolve_opts.SYM = true;
 for fi=1:cv_fold
     % test indices 
-    teI = I(fi, :);
+    teI = Icv(fi, :);
     % training indices
     trI = ~teI;
     ntr = sum(trI);
     
     %prior mean in the test set 
-    priorMeanParam = mean(params(:, teI), 2);
+    priorMeanParam = mean(sub_params(:, teI), 2);
     for gi = 1:length(gwidth2_list)
         gwidth2 = gwidth2_list(gi);
         Ktr = exp(-Dist2(trI, trI)./(2*gwidth2));
@@ -85,13 +95,15 @@ for fi=1:cv_fold
             reg = reg_list(ri);
             % ntr x nte
             Wtr = linsolve(Ktr + reg*eye(ntr), Krs, linsolve_opts);
-            PostMeans = params(:, trI)*Wtr;
+            PostMeans = sub_params(:, trI)*Wtr;
             % marginalize to get an estimate prior mean of params
             estPriorMeanParam = mean(PostMeans, 2);
 
             % compare to prior mean in the test set 
-            CVErr(fi, gi, ri) = sum( (estPriorMeanParam - priorMeanParam).^2);
-            fprintf('fold: %d, gw2: %.2g, reg: %.2g\n', fi, gwidth2, reg);
+            err = sum( (estPriorMeanParam - priorMeanParam).^2);
+            CVErr(fi, gi, ri) = err;
+            fprintf('fold: %d, gw2: %.2g, reg: %.2g => err: %.3g\n', fi, ...
+                gwidth2, reg, err);
 
         end
     end
@@ -113,13 +125,16 @@ results = struct();
 % Can be negative.
 % Return a function which takes in stats (d x 1) and output weights (n x 1).
 % Can also take in (d x n') to produce (n x n').
-K = exp(-Dist2./(2*best_gwidth2));
+ker = KGaussian(best_gwidth2);
+K = ker.eval(stats, stats);
+%K = exp(-Dist2./(2*best_gwidth2));
 %OutKinv = linsolve(K + best_reg*eye(n), params', linsolve_opts)';
 %assert(size(OutKinv, 2)==n);
 results.regress_weights_func = @(test_stats)regress_weights_func(K, stats, ...
     best_gwidth2, best_reg, linsolve_opts, test_stats);
 results.best_gwidth2 = best_gwidth2;
 results.best_reg = best_reg;
+results.min_cv_err = minerr;
 
 rng(oldRng);
 end

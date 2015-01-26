@@ -28,8 +28,8 @@ stat_gen_func = @(data) geomean(data, 2);
 
 % kabc needs a training set containing (summary stat, parameter) pairs.
 % construct a training set
-num_latent_draws = 400; % this is also the training size
-num_pseudo_data = 300;
+num_latent_draws = 500; % this is also the training size
+num_pseudo_data = 200;
 train_params = proposal_dist(num_latent_draws);
 train_stats = zeros(1, num_latent_draws);
 % for each single parameter, we need to construct a summary statistic of 
@@ -56,7 +56,12 @@ op.kabc_reg_list = 10.^(-4:2:3)/sqrt(ntr);
 op.kabc_cv_fold = 3;
 
 % a list of Gaussian widths squared to be used as candidates for Gaussian kernel
-op.kabc_gwidth2_list = [1/8, 1/4, 1, 2].* (meddistance(train_stats).^2);
+op.kabc_gwidth2_list = [1/8, 1/4, 1, 2].* (meddistance(train_stats)^2);
+
+% number of subsamples to use for cross validation. This is for speeding up 
+% the computation in cross validation. After the best parameter combination 
+% is chosen, full dataset will be used to train.
+op.kabc_cv_num_subsamples = min(ntr, 300) ;
 
 % ---- training ------
 [R, op] = kabc_cond_embed(train_stats, train_params, op);
@@ -66,7 +71,7 @@ op.kabc_gwidth2_list = [1/8, 1/4, 1, 2].* (meddistance(train_stats).^2);
 % ---- test phase --------------
 % generate some observations
 % Try to play with true_theta and check the result.
-true_theta = 5;
+true_theta = 3;
 num_obs = 200;
 obs = likelihood_func(true_theta, num_obs );
 observed_stat = stat_gen_func(obs);

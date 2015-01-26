@@ -6,7 +6,12 @@ clc;
 clf;
 
 %% (1) load data
-load ../experiments/flydata.mat
+%load ../experiments/flydata.mat
+load flydata.mat
+
+seed = 11;
+oldRng = rng();
+rng(seed);
 
 % test gendata code to see if this matches the data
 % with relatively accurate params
@@ -25,7 +30,7 @@ load ../experiments/flydata.mat
 % logparams = [ 3.76529501 -1.03266828  5.46587492 -0.40094812 -0.96334847  log(7) ]; 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
-% n = length(flydata);
+n = length(flydata);
 % 
 % simuldat = gendata_pop_dyn_eqn(exp(logparams), n);
 % 
@@ -37,7 +42,8 @@ load ../experiments/flydata.mat
 
 maxiter = 10;
 
-whichmethod = 'ssf_kernel_abc';
+whichmethod = 'kabc_cond_embed';
+%whichmethod = 'ssf_kernel_abc';
 % whichmethod = 'rejection_abc';
 % whichmethod = 'ssb_abc';
 
@@ -58,6 +64,11 @@ for iter = 1 : maxiter
     
     results = run_iteration_blowflydata(whichmethod, opts, iter);
 
+    % remove fields which will make file very big. 
+    % Remove function handle variables.
+    if isfield(results.R, 'regress_weights_func')
+        results.R = rmfield(results.R, 'regress_weights_func');
+    end
 %     save results 
     save(strcat('blowflydata: ', num2str(whichmethod), '_thIter', num2str(iter), '.mat'), 'results');
     
@@ -90,5 +101,5 @@ mse = @(a) norm(s-a);
 
 
 
-
+rng(oldRng);
 
