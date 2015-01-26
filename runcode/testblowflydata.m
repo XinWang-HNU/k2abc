@@ -21,17 +21,17 @@ load ../experiments/flydata.mat
 % sig_p = params(5);
 % tau = parmas(6); 
 
-%%%%%%%%% this is what Ted's code gives me (best in terms of mse on ss %%%%%%%%
-logparams = [ 3.76529501 -1.03266828  5.46587492 -0.40094812 -0.96334847  log(7) ]; 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-n = length(flydata);
-
-simuldat = gendata_pop_dyn_eqn(exp(logparams), n);
-
-subplot(211); plot(flydata/1000); title('true data');
-subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat./1000, 'r-'); title('simulated data');
-set(gca, 'ylim', [0 max(simuldat/1000)])
+% %%%%%%%%% this is what Ted's code gives me (best in terms of mse on ss %%%%%%%%
+% logparams = [ 3.76529501 -1.03266828  5.46587492 -0.40094812 -0.96334847  log(7) ]; 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% n = length(flydata);
+% 
+% simuldat = gendata_pop_dyn_eqn(exp(logparams), n);
+% 
+% subplot(211); plot(flydata/1000); title('true data');
+% subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat./1000, 'r-'); title('simulated data');
+% set(gca, 'ylim', [0 max(simuldat/1000)])
 
 %% test ssf-abc
 
@@ -79,3 +79,16 @@ subplot(211); plot(1:180, flydata/1000, 'k', 1:180, simuldat_sl./1000, 'b-'); ti
 set(gca, 'ylim', [0 max(simuldat_ours/1000) + 1])
 subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-'); title('simulated data (ours)');
 set(gca, 'ylim', [0 max(simuldat_ours/1000) + 1])
+
+% compute chosen summary statistics
+s = ss_for_blowflydata(dat);
+s_ours =  ss_for_blowflydata(simuldat_ours);
+s_sl = ss_for_blowflydata(simuldat_sl);
+
+mse = @(a) norm(s-a);
+[mse(s) mse(s_ours) mse(s_sl)]
+
+
+
+
+
