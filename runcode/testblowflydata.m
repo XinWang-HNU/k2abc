@@ -76,34 +76,46 @@ end
 
 %%
 
+clear all;
+clf;
+clc;
+
+load flydata.mat
+n = length(flydata);
+
 % whichmethod =  'ssf_kernel_abc';
 % iter = 4; 
 % load(strcat('blowflydata: ', num2str(whichmethod), '_thIter', num2str(iter), '.mat'))
 
-% whichmethod = 'kabc_cond_embed';
-% iter = 2; 
-%  load(strcat('blowflydata_', num2str(whichmethod), '_thIter', num2str(iter), '.mat'))
+% params_ours = results.post_mean(1,:); 
+% simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
 
-params_ours = results.post_mean(1,:); 
-simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
+
+whichmethod = 'kabc_cond_embed';
+iter = 1; 
+load(strcat('blowflydata_', num2str(whichmethod), '_thIter', num2str(iter), '_2.mat'))
+
+params = results.post_mean; 
+simuldat = gendata_pop_dyn_eqn(params, n);
 
 params_sl = exp([ 3.76529501 -1.03266828  5.46587492 -0.40094812 -0.96334847  log(7) ]); 
 simuldat_sl = gendata_pop_dyn_eqn(params_sl, n);
 
 subplot(211); plot(1:180, flydata/1000, 'k', 1:180, simuldat_sl./1000, 'b-'); title('simulated data');
-set(gca, 'ylim', [0 max(simuldat_ours/1000) + 1])
-subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-'); title('simulated data (ours)');
-set(gca, 'ylim', [0 max(simuldat_ours/1000) + 1])
+set(gca, 'ylim', [0 max(simuldat/1000) + 1])
+subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat./1000, 'r-'); title('simulated data');
+set(gca, 'ylim', [0 max(simuldat/1000) + 1])
 
 % compute chosen summary statistics
-s = ss_for_blowflydata(dat);
-s_ours =  ss_for_blowflydata(simuldat_ours);
+s = ss_for_blowflydata(flydata);
+% s_ours =  ss_for_blowflydata(simuldat_ours);
+s_kabc = ss_for_blowflydata(simuldat);
 s_sl = ss_for_blowflydata(simuldat_sl);
 
 mse = @(a) norm(s-a);
-[mse(s) mse(s_ours) mse(s_sl)]
+[mse(s) mse(s_kabc) mse(s_sl)]
 
 
 
-rng(oldRng);
+% rng(oldRng);
 
