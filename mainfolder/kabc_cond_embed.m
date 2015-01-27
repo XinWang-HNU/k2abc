@@ -135,6 +135,8 @@ results.regress_weights_func = @(test_stats)regress_weights_func(K, stats, ...
 results.best_gwidth2 = best_gwidth2;
 results.best_reg = best_reg;
 results.min_cv_err = minerr;
+results.cverr = CVErr;
+results.cverr_foldmean = error_grid;
 
 rng(oldRng);
 end
