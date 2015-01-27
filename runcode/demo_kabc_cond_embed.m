@@ -11,20 +11,20 @@ rng(seed);
 %
 % Likelihood function handle.
 %  Gaussian likelihood as an example
-%likelihood_func = @(theta, n)randn(1, n) + theta;
+likelihood_func = @(theta, n)randn(1, n) + theta;
 % 
 % Exponential likelihood
-likelihood_func = @(theta, n)exprnd(theta, 1, n);
+%likelihood_func = @(theta, n)exprnd(theta, 1, n);
 
 % A proposal distribution for drawing the latent variables of interest.
-%proposal_dist = @(n)randn(1, n)*sqrt(8);
+proposal_dist = @(n)randn(1, n)*sqrt(8);
 %
 % uniform 
-proposal_dist = @(n)unifrnd(0.1, 10, 1, n);
+%proposal_dist = @(n)unifrnd(0.1, 10, 1, n);
 % a function for computing a vector of summary statistics from a set of samples
 % func : (d x n) -> p x 1 vector for some p
-%stat_gen_func = @(data) mean(data, 2);
-stat_gen_func = @(data) geomean(data, 2);
+stat_gen_func = @(data) 1./(1+ exp(-mean(data, 2)));
+%stat_gen_func = @(data) geomean(data, 2);
 
 % kabc needs a training set containing (summary stat, parameter) pairs.
 % construct a training set
@@ -83,7 +83,7 @@ W = weights_func(observed_stat);
 % plot weights 
 figure 
 hold on
-stem(train_stats, W);
+stem(train_params, W);
 set(gca, 'fontsize', 16);
 title(sprintf('true theta: %.2g, Observed stat: %.2g, likelihood = %s', ...
     true_theta, observed_stat, ...
