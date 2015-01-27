@@ -76,9 +76,13 @@ end
 
 %%
 
-whichmethod =  'ssf_kernel_abc';
-iter = 4; 
-load(strcat('blowflydata: ', num2str(whichmethod), '_thIter', num2str(iter), '.mat'))
+% whichmethod =  'ssf_kernel_abc';
+% iter = 4; 
+% load(strcat('blowflydata: ', num2str(whichmethod), '_thIter', num2str(iter), '.mat'))
+
+% whichmethod = 'kabc_cond_embed';
+% iter = 2; 
+%  load(strcat('blowflydata_', num2str(whichmethod), '_thIter', num2str(iter), '.mat'))
 
 params_ours = results.post_mean(1,:); 
 simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
