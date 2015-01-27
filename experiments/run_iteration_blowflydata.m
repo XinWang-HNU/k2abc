@@ -151,7 +151,7 @@ elseif strcmp(num2str(whichmethod),'kabc_cond_embed')
     % test on the actual observations
     test_stats = stat_gen_func(opts.yobs);
     unnorm_weights = R.regress_weights_func(test_stats);
-    R.latent_samples = train_stats;
+    R.latent_samples = train_params;
     R.unnorm_weights = unnorm_weights;
 
     post_mean = R.latent_samples*R.unnorm_weights(:);
