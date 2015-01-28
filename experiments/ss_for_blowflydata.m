@@ -39,11 +39,16 @@ s = zeros(nstats, 1);
 sorted = sort(dat);
 sorted_dif = sort(diff(dat));
 
-q14 = mean(sorted(1:N/4));
-q24 = mean(sorted(N/4+1:N/2));
-% q2 = mean(sorted(N/4+1:3*N/4));
-q34 = mean( sorted(N/2+1:3*N/4)); 
- q44 = mean( sorted(3*N/4+1:N));
+% q14 = mean(sorted(1:N/4));
+% q24 = mean(sorted(N/4+1:N/2));
+% q34 = mean( sorted(N/2+1:3*N/4)); 
+%  q44 = mean( sorted(3*N/4+1:N));
+
+
+q14 = mean(sorted(1:round(N/4)));
+q24 = mean(sorted(round(N/4)+1:round(N/2)));
+q34 = mean( sorted(round(N/2)+1:round(3*N/4))); 
+ q44 = mean( sorted(round(3*N/4)+1:N));
  
  s(1) = log(q14/1000.0+1e-12);
  s(2) = log(q24/1000.0+1e-12);
@@ -51,10 +56,15 @@ q34 = mean( sorted(N/2+1:3*N/4));
  s(4) = log(q44/1000.0+1e-12);
  
  
- q14 = mean( sorted_dif(1:N/4));
- q24 = mean( sorted_dif(N/4+1:N/2));
- q34 = mean( sorted_dif(N/2+1:3*N/4));
- q44 = mean( sorted_dif(3*N/4+1:end));
+%  q14 = mean( sorted_dif(1:N/4));
+%  q24 = mean( sorted_dif(N/4+1:N/2));
+%  q34 = mean( sorted_dif(N/2+1:3*N/4));
+%  q44 = mean( sorted_dif(3*N/4+1:end));
+
+ q14 = mean( sorted_dif(1:round(N/4)));
+ q24 = mean( sorted_dif(round(N/4)+1:round(N/2)));
+ q34 = mean( sorted_dif(round(N/2)+1:round(3*N/4)));
+ q44 = mean( sorted_dif(round(3*N/4)+1:end));
  
  s(5) = q14/1000.0;
  s(6) = q24/1000.0 ;

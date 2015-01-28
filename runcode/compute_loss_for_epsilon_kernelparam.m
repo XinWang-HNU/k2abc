@@ -1,7 +1,7 @@
 % this function computes a loss function for each set of epsilon and kernel parameter.
 % mijung wrote on jan 27, 2015
 
-function [avg_loss, std_loss] = compute_loss_for_epsilon_kernelparam(opts)
+function [avg_loss, std_loss] = compute_loss_for_epsilon_kernelparam(testdat, opts)
 
 % input: 
 % (1) opts.likelihood: to draw pseudo samples
@@ -23,7 +23,15 @@ lossmat = zeros(num_rep, 1);
 for i=1:num_rep
     % (1) draw samples for pseudo data
     pseudo_i = likelihood_func(params, num_samps);
+    
+%     try
+%      [alignedX, alignedY] = samplealign(sort(testdat)', sort(pseudo_i)');
+%     catch
+%         keyboard;
+%     end
+%     lossmat(i) = loss(sort(testdat)', sort(pseudo_i)');
     lossmat(i) = loss(pseudo_i);
+
 end
 
 avg_loss = mean(lossmat);
