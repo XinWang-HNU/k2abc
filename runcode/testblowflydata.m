@@ -42,13 +42,14 @@ n = length(flydata);
 
 maxiter = 10;
 
-% whichmethod = 'kabc_cond_embed';
+%whichmethod = 'kabc_cond_embed';
 whichmethod = 'ssf_kernel_abc';
 % whichmethod = 'rejection_abc';
 % whichmethod = 'ssb_abc';
 
 opts.num_obs = n;
 opts.num_theta_samps = 10000;
+%opts.num_theta_samps = 3000;
 opts.num_pseudodata_samps = 4*n;
 
 % num_pseudodata_samps = n and width2 = meddistance(opts.yobs)^2/4
@@ -67,9 +68,9 @@ for iter = 1 : maxiter
 
     % remove fields which will make file very big. 
     % Remove function handle variables.
-    if isfield(results.R, 'regress_weights_func')
-        results.R = rmfield(results.R, 'regress_weights_func');
-    end
+    %if isfield(results.R, 'regress_weights_func')
+    %    results.R = rmfield(results.R, 'regress_weights_func');
+    %end
 %     save results 
     save(strcat('blowflydata: ', num2str(whichmethod), '_thIter', num2str(iter), '.mat'), 'results');
 %     save(strcat('blowflydata: ', num2str(whichmethod), '_medianHeuristic', '.mat'), 'results');

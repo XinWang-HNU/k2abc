@@ -135,14 +135,14 @@ elseif strcmp(num2str(whichmethod),'kabc_cond_embed')
     % a list of regularization parameter candidates in kabc. 
     % Chosen by cross validation.
     ntr = op.num_latent_draws;
-    op.kabc_reg_list = 10.^(-4:1:3);
+    op.kabc_reg_list = 10.^(-6:1:2);
     % number of subsamples to be used during cross validation. 
     % Lower => speed up
     op.kabc_cv_num_subsamples = min(ntr, 5000) ;
     % number of folds to perform in cross validation
-    op.kabc_cv_fold = 5;
+    op.kabc_cv_fold = 3;
     % a list of Gaussian widths squared to be used as candidates for Gaussian kernel
-    op.kabc_gwidth2_list = [1/32, 1/16, 1/8, 1/4, 1,  4, 8, 16, 32].* (meddistance(train_stats).^2);
+    op.kabc_gwidth2_list = [1/16, 1/8, 1/4, 1/2, 1, 2, 4, 8, 16].* (meddistance(train_stats).^2);
 
     % ---- training ------
     [R, op] = kabc_cond_embed(train_stats, train_params, op);
@@ -154,6 +154,8 @@ elseif strcmp(num2str(whichmethod),'kabc_cond_embed')
     unnorm_weights = R.regress_weights_func(test_stats);
     R.latent_samples = train_params;
     R.unnorm_weights = unnorm_weights;
+    R.train_stats = train_stats;
+    R.train_params = train_params;
 
     post_mean = R.latent_samples*R.unnorm_weights(:);
     % Don't need to divide by the sum of weights here.
@@ -172,7 +174,7 @@ results.post_var = post_var;
 % results.prob_post_mean = prob_post_mean;
 % results.dat = dat; 
 results.R = R; 
-%results.op = op;
+results.op = op;
 if isfield(op, 'epsilon_list')
     results.epsilon_list = op.epsilon_list; 
 end
