@@ -29,7 +29,9 @@ width2mat = meddistance(opts.yobs)^2.*logspace(-4,2,maxiter);
 
 % split data into training and test data
 cv_fold = 1;
-idx_trn = [ones(1, n*3/4) zeros(1, n/4)];
+last_idx_trn = ceil(n*3/4);
+idx_trn = [ones(1, last_idx_trn), zeros(1, n - last_idx_trn)];
+assert(length(idx_trn) == n);
 
 % for fi=1:cv_fold
 
@@ -38,7 +40,7 @@ ntr = sum(idx_trn);
 
 opts.num_obs = ntr;
 opts.num_pseudodata_samps = 4*ntr;
-opts.yobs = flydata(1:ntr)';
+opts.yobs = flydata(idx_trn)';
 
 for iter = 1 : maxiter
     
@@ -66,8 +68,8 @@ opts.likelihood_func = @ gendata_pop_dyn_eqn;
 opts.num_rep = 100;
 
 % for fi=1:cv_fold
-idx_tst = [zeros(1, n*3/4) ones(1, n/4)];
-testdat = flydata(n*3/4+1:n)';
+%idx_tst = [zeros(1, n*3/4) ones(1, n/4)];
+testdat = flydata( (last_idx_trn+1):n )';
 
 % s_true = ss_for_blowflydata(testdat);
 opts.obj = @(a) norm(hist(testdat)-hist(a));

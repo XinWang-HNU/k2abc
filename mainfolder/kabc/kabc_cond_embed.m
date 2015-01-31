@@ -49,6 +49,7 @@ reg_list = op.kabc_reg_list;
 op.kabc_cv_fold = myProcessOptions(op, 'kabc_cv_fold', 10);
 cv_fold = op.kabc_cv_fold;
 
+
 % a list of Gaussian widths squared to be used as candidates for Gaussian kernel.
 default_gwidth2s = [1/2, 1, 2].* (meddistance(stats).^2);
 op.kabc_gwidth2_list = myProcessOptions(op, 'kabc_gwidth2_list', default_gwidth2s);
