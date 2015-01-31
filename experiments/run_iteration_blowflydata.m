@@ -35,7 +35,8 @@ if strcmp(num2str(whichmethod),'ssf_kernel_abc')
     op.mmd_kernel = KGaussian(width2);
     op.mmd_exponent = 2;
     
-    op.epsilon_list = logspace(-3, 1, 10);
+    op.epsilon_list = logspace(-5, -3, 10);
+%     op.epsilon_list = logspace(-3, 1, 10);
 %     op.epsilon_list = logspace(-5, 0, 9);
 %     op.epsilon_list = op.epsilon_list(1); 
 %     op.epsilon_list = 1e-3; 
