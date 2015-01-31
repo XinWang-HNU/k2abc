@@ -3,6 +3,8 @@ function A=discrete_rnd(P, m, n)
 % Draw samples from a discrete distribution with parameter P (Kx1).
 % @author Wittawat
 % 
+assert(all(P>=0), 'P must be non-negative.');
+assert(all(P<=1), 'P must be <= 1');
 if abs( sum(P) - 1) > 1e-8
     warning('Argument to discrete_rnd() does not sum to 1. Something may go wrong.');
 end
