@@ -27,11 +27,9 @@ function [results, op ] = kabc_custom_loss(stats, params, op )
 %   Improve it later if needed. 
 %
 
-[d, n] = size(stats);
 % random seed. This will affect the partitioning of the data in cross
 % validation.
 op.seed = myProcessOptions(op, 'seed', 1);
-seed = op.seed;
 oldRng = rng();
 rng(op.seed);
 
@@ -39,23 +37,21 @@ rng(op.seed);
 op.kabc_reg_list = myProcessOptions(op, 'kabc_reg_list', 10.^(-4:2:3));
 reg_list = op.kabc_reg_list;
 
-% number of folds to perform in cross validation
-op.kabc_cv_fold = myProcessOptions(op, 'kabc_cv_fold', 10);
-cv_fold = op.kabc_cv_fold;
-
-
 % a list of Gaussian widths squared to be used as candidates for Gaussian kernel.
 default_gwidth2s = [1/2, 1, 2].* (meddistance(stats).^2);
 op.kabc_gwidth2_list = myProcessOptions(op, 'kabc_gwidth2_list', default_gwidth2s);
 gwidth2_list = op.kabc_gwidth2_list;
 
 % Loss function to be used to measure the goodness of parameters (Gaussian width ,
-% regularization parameter).
+% regularization parameter). A loss function takes the form 
+% f: (weights_func, train_stats ) -> real number.  
+% Lower is better.
+%
 if isOptionEmpty(op, 'kabc_loss_func')
     error('kabc_loss_func cannot be empty.');
 end
 loss_func = op.kabc_loss_func;
-assert(isa(proposal_dist, 'function_handle'), 'kabc_loss_func must be a function handle.');
+assert(isa(loss_func, 'function_handle'), 'kabc_loss_func must be a function handle.');
 
 
 ParamErr = zeros(length(gwidth2_list), length(reg_list));
@@ -67,7 +63,7 @@ linsolve_opts = struct();
 
 % distance matrix only once.
 sumStat2 = sum(stats.^2, 1);
-Dist2 = bsxfun(@plus, sumStat2, sumStat2') - 2*sub_stats'*sub_stats;
+Dist2 = bsxfun(@plus, sumStat2, sumStat2') - 2*stats'*stats;
 for gi = 1:length(gwidth2_list)
     gwidth2 = gwidth2_list(gi);
     K = exp(-Dist2./(2*gwidth2));
@@ -78,28 +74,18 @@ for gi = 1:length(gwidth2_list)
         % to be used on parameters in (params).
         weights_func = @(test_stats)regress_weights_func(K, stats, gwidth2,...
             reg, linsolve_opts, test_stats);
-        Wtr = linsolve(K + reg*eye(ntr), Krs, linsolve_opts);
+        err = loss_func(weights_func, stats);
+        ParamErr(gi, ri) = err;
 
-        PostMeans = sub_params(:, trI)*Wtr;
-        % marginalize to get an estimate prior mean of params
-        estPriorMeanParam = mean(PostMeans, 2);
-
-        % compare to prior mean in the test set 
-        err = sum( (estPriorMeanParam - priorMeanParam).^2);
-        CVErr(fi, gi, ri) = err;
-        fprintf('fold: %d, gw2: %.2g, reg: %.2g => err: %.3g\n', fi, ...
+        fprintf('gw2: %.2g, reg: %.2g => err: %.3g\n', ...
             gwidth2, reg, err);
 
     end
 end
 
-% length(gwidth2_list) x length(reg_list);
-error_grid = shiftdim(mean(CVErr, 1), 1);
-assert(all(size(error_grid) == [length(gwidth2_list), length(reg_list)]));
-
 % best param combination
-[minerr, ind] = min(error_grid(:));
-[bgi, bri] = ind2sub(size(error_grid), ind);
+[minerr, ind] = min(ParamErr(:));
+[bgi, bri] = ind2sub(size(ParamErr), ind);
 best_gwidth2 = gwidth2_list(bgi);
 best_reg = reg_list(bri);
 
@@ -111,16 +97,12 @@ results = struct();
 % Can also take in (d x n') to produce (n x n').
 ker = KGaussian(best_gwidth2);
 K = ker.eval(stats, stats);
-%K = exp(-Dist2./(2*best_gwidth2));
-%OutKinv = linsolve(K + best_reg*eye(n), params', linsolve_opts)';
-%assert(size(OutKinv, 2)==n);
 results.regress_weights_func = @(test_stats)regress_weights_func(K, stats, ...
     best_gwidth2, best_reg, linsolve_opts, test_stats);
 results.best_gwidth2 = best_gwidth2;
 results.best_reg = best_reg;
-results.min_cv_err = minerr;
-results.cverr = CVErr;
-results.cverr_foldmean = error_grid;
+results.min_err = minerr;
+results.param_err = ParamErr;
 
 rng(oldRng);
 end
