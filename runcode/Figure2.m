@@ -9,34 +9,59 @@ n = length(flydata);
 % Fig2 (A): show prior histogram and posterior histgram (our method)
 
 prior_samps = sample_from_prior_blowflydata(10000);
-subplot(2, 6, 1); hist(log(prior_samps(1,:))); xlabel('logP'); ylabel('prior'); set(gca, 'xlim', 2+2.*[-5 5]); box off;
-subplot(2, 6, 2); hist(log(prior_samps(2,:))); xlabel('log delta'); set(gca, 'xlim', -1+0.4.*[-5 5]);  box off;
-subplot(2, 6, 3); hist(log(prior_samps(3,:))); xlabel('log N0'); set(gca, 'xlim', 5+0.5.*[-5 5]);  box off;
-subplot(2, 6, 4); hist(log(prior_samps(4,:))); xlabel('log sig d'); set(gca, 'xlim', -0.5+ [-5 5]);  box off;
-subplot(2, 6, 5); hist(log(prior_samps(5,:))); xlabel('log sig p'); set(gca, 'xlim', -0.5+ [-5 5]);  box off;
-subplot(2, 6, 6); hist(log(prior_samps(6,:))); xlabel('log tau'); set(gca, 'xlim', 2+ [-5 5]);  box off;
+nbin = 50; 
+subplot(3, 6, 1); hist(log(prior_samps(1,:)), nbin); xlabel('logP'); ylabel('prior'); set(gca, 'xlim', 2+2.*[-5 5]); box off;
+subplot(3, 6, 2); hist(log(prior_samps(2,:)), nbin); xlabel('log delta'); set(gca, 'xlim', -1+0.4.*[-5 5]);  box off;
+subplot(3, 6, 3); hist(log(prior_samps(3,:)), nbin); xlabel('log N0'); set(gca, 'xlim', 5+0.5.*[-5 5]);  box off;
+subplot(3, 6, 4); hist(log(prior_samps(4,:)), nbin); xlabel('log sig d'); set(gca, 'xlim', -0.5+ [-5 5]);  box off;
+subplot(3, 6, 5); hist(log(prior_samps(5,:)), nbin); xlabel('log sig p'); set(gca, 'xlim', -0.5+ [-5 5]);  box off;
+subplot(3, 6, 6); hist(log(prior_samps(6,:)), nbin); xlabel('log tau'); set(gca, 'xlim', 2+ [-5 5]);  box off;
 
 % plot(1:n, flydata/1000,'k.-'); ylabel('yobs (x1000)'); xlabel('time');
 
-whichmethod = 'ssf_kernel_abc';
-minIdx1= 11;
-minIdx2 = 1;
-load(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(minIdx1), '_thxvset', '.mat'));
-params_ours = results.post_mean(minIdx2,:);
 
-posterior_samps = bsxfun(@times, (results.R.latent_samples'), results.R.norm_weights(:, minIdx2));
-subplot(2, 6, 7); hist(log(posterior_samps(:, 1))); xlabel('logP'); ylabel('posterior');
-% set(gca, 'xlim', 2+2.*[-5 5]); box off;
-subplot(2, 6, 8); hist(log(posterior_samps(:, 2))); xlabel('log delta');
-% set(gca, 'xlim', -1+0.4.*[-5 5]);  box off;
-subplot(2, 6, 9); hist(log(posterior_samps(:, 3))); xlabel('log N0');
-% set(gca, 'xlim', 5+0.5.*[-5 5]);  box off;
-subplot(2, 6, 10); hist(log(posterior_samps(:, 4))); xlabel('log sig d');
-% set(gca, 'xlim', -0.5+ [-5 5]);  box off;
-subplot(2, 6, 11); hist(log(posterior_samps(:, 5))); xlabel('log sig p');
-% set(gca, 'xlim', -0.5+ [-5 5]);  box off;
-subplot(2, 6, 12); hist((posterior_samps(:, 6))); xlabel('log tau');
-% set(gca, 'xlim', 2+ [-5 5]);  box off;
+%% synthetic likelihood ABC
+
+ load thetas_sl_ep_point1.mat % accpt rate is 0.26
+
+subplot(3,6,7); hist(thetas(:,1), nbin); set(gca, 'xlim', 2+2.*[-5 5]); box off;
+subplot(3,6,8); hist(thetas(:,2), nbin); set(gca, 'xlim', -1+0.4.*[-5 5]);  box off;
+subplot(3,6,9); hist(thetas(:,3), nbin); set(gca, 'xlim', 5+0.5.*[-5 5]);  box off;
+subplot(3,6,10); hist(thetas(:,4), nbin); set(gca, 'xlim', -0.5+ [-5 5]);  box off;
+subplot(3,6,11); hist(thetas(:,5), nbin);  set(gca, 'xlim', -0.5+ [-5 5]);  box off;
+subplot(3,6,12); hist(log(thetas(:,6)), nbin); set(gca, 'xlim', 2+ [-5 5]);  box off;
+
+
+
+
+
+
+
+
+
+
+
+
+%%
+whichmethod = 'ssf_kernel_abc';
+% minIdx1= 11;
+minIdx2 = 3;
+% load(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(minIdx1), '_thxvset', '.mat'));
+load(strcat('blowflydata: ', num2str(whichmethod), 'fromXV', '.mat'), 'results'); 
+
+
+% params_ours = results.post_mean(minIdx2,:);
+weightvec = results.R.norm_weights(:, minIdx2);
+theta_samps_prior  = results.R.latent_samples; 
+
+idx_to_samp = discrete_rnd(weightvec', 1, 1e4);
+
+subplot(3, 6, 13); hist(log(theta_samps_prior(1,idx_to_samp)), nbin); set(gca, 'xlim', 2+2.*[-5 5]); box off;
+subplot(3, 6, 14); hist(log(theta_samps_prior(2,idx_to_samp)), nbin); set(gca, 'xlim', -1+0.4.*[-5 5]);  box off;
+subplot(3, 6, 15); hist(log(theta_samps_prior(3,idx_to_samp)), nbin); set(gca, 'xlim', 5+0.5.*[-5 5]);  box off;
+subplot(3, 6, 16); hist(log(theta_samps_prior(4,idx_to_samp)), nbin);  set(gca, 'xlim', -0.5+ [-5 5]);  box off;
+subplot(3, 6, 17); hist(log(theta_samps_prior(5,idx_to_samp)), nbin); set(gca, 'xlim', -0.5+ [-5 5]);  box off;
+subplot(3, 6, 18); hist(log(theta_samps_prior(6,idx_to_samp)), nbin); set(gca, 'xlim', 2+ [-5 5]);  box off;
 
 
 
