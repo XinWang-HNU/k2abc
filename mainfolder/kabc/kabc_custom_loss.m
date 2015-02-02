@@ -65,6 +65,7 @@ linsolve_opts = struct();
 sumStat2 = sum(stats.^2, 1);
 Dist2 = bsxfun(@plus, sumStat2, sumStat2') - 2*stats'*stats;
 for gi = 1:length(gwidth2_list)
+ 
     gwidth2 = gwidth2_list(gi);
     K = exp(-Dist2./(2*gwidth2));
 

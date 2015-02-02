@@ -1,4 +1,4 @@
-function [ ] = demo_kabc_custom_loss( )
+% function demo_kabc_custom_loss( )
 %DEMO_KABC_CUSTOM_LOSS Demonstrate how to use kabc_custom_loss
 %@author Wittawat
 %
@@ -93,5 +93,5 @@ hold off
 
 % change seed back 
 rng(oldRng);
-end
+% end
 

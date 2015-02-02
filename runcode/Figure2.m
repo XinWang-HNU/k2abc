@@ -1,7 +1,7 @@
 % to make Figure 2
 clear all;
 clc;
-clf;
+% clf;
 
 load flydata.mat
 n = length(flydata);
@@ -9,84 +9,110 @@ n = length(flydata);
 % Fig2 (A): show prior histogram and posterior histgram (our method)
 
 prior_samps = sample_from_prior_blowflydata(10000);
-nbin = 50; 
-subplot(3, 6, 1); hist(log(prior_samps(1,:)), nbin); xlabel('logP'); ylabel('prior'); set(gca, 'xlim', 2+2.*[-5 5]); box off;
-subplot(3, 6, 2); hist(log(prior_samps(2,:)), nbin); xlabel('log delta'); set(gca, 'xlim', -1+0.4.*[-5 5]);  box off;
-subplot(3, 6, 3); hist(log(prior_samps(3,:)), nbin); xlabel('log N0'); set(gca, 'xlim', 5+0.5.*[-5 5]);  box off;
-subplot(3, 6, 4); hist(log(prior_samps(4,:)), nbin); xlabel('log sig d'); set(gca, 'xlim', -0.5+ [-5 5]);  box off;
-subplot(3, 6, 5); hist(log(prior_samps(5,:)), nbin); xlabel('log sig p'); set(gca, 'xlim', -0.5+ [-5 5]);  box off;
-subplot(3, 6, 6); hist(log(prior_samps(6,:)), nbin); xlabel('log tau'); set(gca, 'xlim', 2+ [-5 5]);  box off;
+nbin = 10; 
+subplot(3, 6, 1); hist(log(prior_samps(1,:)), nbin); xlabel('logP'); 
+hold on; plot(mean(log(prior_samps(1,:))), 1:5000, 'r-');
+set(gca, 'xlim', 2+2.*[-5 5]); box off;
+
+subplot(3, 6, 2); hist(log(prior_samps(2,:)), nbin); xlabel('log delta'); 
+hold on; plot(mean(log(prior_samps(2,:))), 1:5000, 'r-');
+set(gca, 'xlim', -1+0.4.*[-5 5]);  box off;
+
+subplot(3, 6, 3); hist(log(prior_samps(3,:)), nbin); xlabel('log N0'); 
+hold on; plot(mean(log(prior_samps(3,:))), 1:5000, 'r-');
+set(gca, 'xlim', 5+0.5.*[-5 5]);  box off;
+
+subplot(3, 6, 4); hist(log(prior_samps(4,:)), nbin); xlabel('log sig d'); 
+hold on; plot(mean(log(prior_samps(4,:))), 1:5000, 'r-');
+set(gca, 'xlim', -0.5+ [-5 5]);  box off;
+
+subplot(3, 6, 5); hist(log(prior_samps(5,:)), nbin); xlabel('log sig p'); 
+hold on; plot(mean(log(prior_samps(5,:))), 1:5000, 'r-');
+set(gca, 'xlim', -0.5+ [-5 5]);  box off;
+
+subplot(3, 6, 6); hist(log(prior_samps(6,:)), nbin); xlabel('log tau'); 
+hold on; plot(mean(log(prior_samps(6,:))), 1:5000, 'r-');
+set(gca, 'xlim', 2+ [-5 5]);  box off;
 
 % plot(1:n, flydata/1000,'k.-'); ylabel('yobs (x1000)'); xlabel('time');
 
 
 %% synthetic likelihood ABC
 
- load thetas_sl_ep_point1.mat % accpt rate is 0.26
+% load thetas_sl.mat
+% load thetas_sl_ep_point01.mat
+load thetas_sl_ep_point1.mat % accpt rate is 0.26
 
-subplot(3,6,7); hist(thetas(:,1), nbin); set(gca, 'xlim', 2+2.*[-5 5]); box off;
-subplot(3,6,8); hist(thetas(:,2), nbin); set(gca, 'xlim', -1+0.4.*[-5 5]);  box off;
-subplot(3,6,9); hist(thetas(:,3), nbin); set(gca, 'xlim', 5+0.5.*[-5 5]);  box off;
-subplot(3,6,10); hist(thetas(:,4), nbin); set(gca, 'xlim', -0.5+ [-5 5]);  box off;
-subplot(3,6,11); hist(thetas(:,5), nbin);  set(gca, 'xlim', -0.5+ [-5 5]);  box off;
-subplot(3,6,12); hist(log(thetas(:,6)), nbin); set(gca, 'xlim', 2+ [-5 5]);  box off;
+nbin = 3; 
 
+subplot(3,6,7); hist(thetas(:,1), nbin); 
+hold on; plot(mean(thetas(:,1)), 1:5000, 'r-');
+set(gca, 'xlim', 2+2.*[-5 5], 'ylim', [0 5000]); box off;
 
+subplot(3,6,8); hist(thetas(:,2), nbin); 
+hold on; plot(mean(thetas(:,2)), 1:5000, 'r-'); set(gca, 'xlim', -1+0.4.*[-5 5], 'ylim', [0 5000]);  box off;
 
+subplot(3,6,9); hist(thetas(:,3), nbin); 
+hold on; plot(mean(thetas(:,3)), 1:5000, 'r-'); set(gca, 'xlim', 5+0.5.*[-5 5], 'ylim', [0 5000]);  box off;
 
+subplot(3,6,10); hist(thetas(:,4), nbin); 
+hold on; plot(mean(thetas(:,4)), 1:5000, 'r-'); set(gca, 'xlim', -0.5+ [-5 5], 'ylim', [0 5000]);  box off;
 
+subplot(3,6,11); hist(thetas(:,5), nbin);  
+hold on; plot(mean(thetas(:,5)), 1:5000, 'r-'); set(gca, 'xlim', -0.5+ [-5 5], 'ylim', [0 5000]);  box off;
 
-
-
-
-
+subplot(3,6,12); hist(log(thetas(:,6)), nbin); 
+hold on; plot(mean(log(thetas(:,6))), 1:5000, 'r-'); set(gca, 'xlim', 2+ [-5 5], 'ylim', [0 5000]);  box off;
 
 
 %%
 whichmethod = 'ssf_kernel_abc';
-% minIdx1= 11;
-minIdx2 = 3;
+
 % load(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(minIdx1), '_thxvset', '.mat'));
+
+minIdx1= 11;
+minIdx2 =2 ;
 load(strcat('blowflydata: ', num2str(whichmethod), 'fromXV', '.mat'), 'results'); 
 
-
+% minIdx1= 16;
+% minIdx2 =2;
+% load(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(minIdx1), '_thxvset_w_higher_epsilon', '.mat'));
+% 
 % params_ours = results.post_mean(minIdx2,:);
 weightvec = results.R.norm_weights(:, minIdx2);
 theta_samps_prior  = results.R.latent_samples; 
 
 idx_to_samp = discrete_rnd(weightvec', 1, 1e4);
 
-subplot(3, 6, 13); hist(log(theta_samps_prior(1,idx_to_samp)), nbin); set(gca, 'xlim', 2+2.*[-5 5]); box off;
-subplot(3, 6, 14); hist(log(theta_samps_prior(2,idx_to_samp)), nbin); set(gca, 'xlim', -1+0.4.*[-5 5]);  box off;
-subplot(3, 6, 15); hist(log(theta_samps_prior(3,idx_to_samp)), nbin); set(gca, 'xlim', 5+0.5.*[-5 5]);  box off;
-subplot(3, 6, 16); hist(log(theta_samps_prior(4,idx_to_samp)), nbin);  set(gca, 'xlim', -0.5+ [-5 5]);  box off;
-subplot(3, 6, 17); hist(log(theta_samps_prior(5,idx_to_samp)), nbin); set(gca, 'xlim', -0.5+ [-5 5]);  box off;
-subplot(3, 6, 18); hist(log(theta_samps_prior(6,idx_to_samp)), nbin); set(gca, 'xlim', 2+ [-5 5]);  box off;
+subplot(3, 6, 13);hist(log(theta_samps_prior(1,idx_to_samp)), nbin);
+hold on; plot(mean(log(theta_samps_prior(1,idx_to_samp))), 1:5000, 'r-');
+set(gca, 'xlim', 2+2.*[-5 5], 'ylim', [0 5000]); box off;
 
+subplot(3, 6, 14); hist(log(theta_samps_prior(2,idx_to_samp)), nbin); 
+hold on; plot(mean(log(theta_samps_prior(2,idx_to_samp))), 1:5000, 'r-');
+set(gca, 'xlim', -1+0.4.*[-5 5], 'ylim', [0 5000]);  box off;
 
+subplot(3, 6, 15); hist(log(theta_samps_prior(3,idx_to_samp)), nbin); 
+hold on; plot(mean(log(theta_samps_prior(3,idx_to_samp))), 1:5000, 'r-');
+set(gca, 'xlim', 5+0.5.*[-5 5], 'ylim', [0 5000]);  box off;
 
+subplot(3, 6, 16); hist(log(theta_samps_prior(4,idx_to_samp)), nbin);  
+hold on; plot(mean(log(theta_samps_prior(4,idx_to_samp))), 1:5000, 'r-');
+set(gca, 'xlim', -0.5+ [-5 5], 'ylim', [0 5000]);  box off;
 
+subplot(3, 6, 17); hist(log(theta_samps_prior(5,idx_to_samp)), nbin); 
+hold on; plot(mean(log(theta_samps_prior(5,idx_to_samp))), 1:5000, 'r-');
+set(gca, 'xlim', -0.5+ [-5 5], 'ylim', [0 5000]);  box off;
 
+subplot(3, 6, 18); hist(log(theta_samps_prior(6,idx_to_samp)), nbin); 
+hold on; plot(mean(log(theta_samps_prior(6,idx_to_samp))), 1:5000, 'r-');
+set(gca, 'xlim', 2+ [-5 5], 'ylim', [0 5000]);  box off;
 
-%%
-
-params_ours = results.post_mean(minIdx2,:);
-simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
-
-subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-'); title('simulated data');
-set(gca, 'ylim', [0 max(simuldat_ours/1000) + 1])
-
-
-
-
-
-
-
-
-
-
-
-
+% params_ours = results.post_mean(minIdx2,:);
+% simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
+% 
+% subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-'); title('simulated data');
+% set(gca, 'ylim', [0 max(simuldat_ours/1000) + 1])
 
 %%
 
@@ -132,6 +158,7 @@ for i=1:num_rept_mse
     
     %% synthetic likelihood abc
     load thetas_sl_ep_point1.mat % accpt rate is 0.26
+%  load thetas_sl_ep_point01.mat
     params_sl = mean(thetas);
     params_sl = [exp(params_sl(1:5)) params_sl(end)];
     simuldat_sl = gendata_pop_dyn_eqn(params_sl, n);
@@ -143,10 +170,13 @@ for i=1:num_rept_mse
     
     mse(ss_for_blowflydata(simuldat_sl))
     %% kabc (conditional mean embedding)
-    whichmethod = 'kabc_cond_embed';
-    iter = 1;
-    load(strcat('blowflydata_', num2str(whichmethod), '_thIter', num2str(iter), '_2.mat'))
-    params_kabc = results.post_mean;
+    
+%     whichmethod = 'kabc_cond_embed';
+%     iter = 1;
+%     load(strcat('blowflydata_', num2str(whichmethod), '_thIter', num2str(iter), '_2.mat'))
+%     params_kabc = results.post_mean;
+    load theta_opt.mat;
+    params_kabc = theta_opt;
     simuldat_kabc = gendata_pop_dyn_eqn(params_kabc, n);
     subplot(312); plot(1:180, flydata/1000, 'k', 1:180, simuldat_kabc./1000, 'k--'); 
     set(gca, 'ylim', [0 max(simuldat_kabc/1000) + 1]); ylabel('k abc');
@@ -154,10 +184,14 @@ for i=1:num_rept_mse
     
     %% ours
     whichmethod = 'ssf_kernel_abc';
-    % minIdx1= 11;
-    minIdx2 = 1;
+    minIdx1= 11;
+    minIdx2 = 2;
     load(strcat('blowflydata: ', num2str(whichmethod), 'fromXV', '.mat'), 'results');
     params_ours = results.post_mean(minIdx2,:);
+%     minIdx1= 16;
+%     minIdx2 = 2;
+%     load(strcat('blowflydata: ', num2str(whichmethod), 'fromXV_higherepsilon', '.mat'), 'results');
+%     params_ours = results.post_mean; 
     simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
     subplot(313); plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-');
     set(gca, 'ylim', [0 12]); ylabel('k abc');
@@ -176,59 +210,70 @@ end
 mean(msemat)
 std(msemat)
 %%
-boxplot(msemat); legend('ours', 'synthetic likelihood abc', 'kabc')
+boxplot(msemat); 
+% legend('ours', 'synthetic likelihood abc', 'kabc')
 
-%% compute avg loss
+%% computing mse on ss with posterior samples of theta
 
-% howmanyscalelength = 10;
-% width2_list = meddistance(flydata)^2.*logspace(-2,2,howmanyscalelength);
-% howmanyepsilon = 9;
-% epsilon_list = logspace(-5, 0, howmanyepsilon);
-%
-% avg_loss_mat = zeros(howmanyscalelength, howmanyepsilon);
-%
-% whichmethod =  'ssf_kernel_abc';
-% opts.likelihood_func = @ gendata_pop_dyn_eqn;
-%
-% s_true = ss_for_blowflydata(flydata);
-% % opts.obj = @(a) norm(hist(flydata)-hist(a));
-% opts.obj = @(a) sqrt(sum((flydata'-a).^2)/n);
-% % opts.obj = @(a) norm(s_true-ss_for_blowflydata(a));
-% opts.num_samps = n;
-% opts.num_rep = 100;
-%
-% for i=1:howmanyscalelength
-%
-%     load(strcat('blowflydata: ', num2str(whichmethod), '_thIter', num2str(i), '.mat'));
-%
-%     for j=1:howmanyepsilon
-%         [i j]
-%         opts.params = results.post_mean(j,:);
-%         avg_loss_mat(i,j) = compute_loss_for_epsilon_kernelparam(opts);
-%     end
-%
+% num_rept_mse = 5000;
+% msemat = zeros(num_rept_mse, 3);
+% s = ss_for_blowflydata(flydata);
+% mse = @(a) norm(s-a);
+% 
+% % draw samples for theta from posterior 
+% whichmethod = 'ssf_kernel_abc';
+% minIdx1= 11;
+% minIdx2 = 2;
+% load(strcat('blowflydata: ', num2str(whichmethod), 'fromXV', '.mat'), 'results');
+% weightvec = results.R.norm_weights(:, minIdx2);
+% theta_samps_prior  = results.R.latent_samples;
+% idx_to_samp = discrete_rnd(weightvec', 1, 1e4);
+% oursamps = theta_samps_prior(:, idx_to_samp);
+%     
+% for i=1:num_rept_mse
+%     
+%     
+%     %% synthetic likelihood abc
+%     load thetas_sl_ep_point1.mat % accpt rate is 0.26
+% %  load thetas_sl_ep_point01.mat
+% %     params_sl = mean(thetas);
+%     params_sl = thetas(i,:);
+%     params_sl = [exp(params_sl(1:5)) params_sl(end)];
+%     simuldat_sl = gendata_pop_dyn_eqn(params_sl, n);
+%     
+% %     subplot(311); plot(1:180, flydata/1000, 'k', 1:180, simuldat_sl./1000, 'b-'); title('simulated data');
+% %     set(gca, 'ylim', [0 max(simuldat_sl/1000) + 1])
+%     subplot(311); plot(1:180, flydata/1000, 'k', 1:180, simuldat_sl./1000, 'b-'); title('simulated data');
+%     set(gca, 'ylim', [0 max(simuldat_sl/1000) + 1]); ylabel('synthetic likelihood abc');
+%     
+% %     mse(ss_for_blowflydata(simuldat_sl))
+%     %% kabc (conditional mean embedding)
+%     
+%     load theta_opt.mat;
+%     params_kabc = theta_opt;
+%     simuldat_kabc = gendata_pop_dyn_eqn(params_kabc, n);
+%     subplot(312); plot(1:180, flydata/1000, 'k', 1:180, simuldat_kabc./1000, 'k--'); 
+%     set(gca, 'ylim', [0 max(simuldat_kabc/1000) + 1]); ylabel('k abc');
+%     
+%     %% ours
+% 
+%     params_ours = oursamps(:,i); 
+%     simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
+%     subplot(313); plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-');
+%     set(gca, 'ylim', [0 12]); ylabel('k abc');
+% 
+%     % compute chosen summary statistics
+%     s_ours =  ss_for_blowflydata(simuldat_ours);
+%     s_kabc = ss_for_blowflydata(simuldat_kabc);
+%     s_sl = ss_for_blowflydata(simuldat_sl);
+%     
+% %     mse(s_ours)
+%     msemat(i,:) = [mse(s_ours) mse(s_sl) mse(s_kabc)];
+%     
 % end
-%
+% 
+% mean(msemat)
+% std(msemat)
 % %%
-%
-% [minIdx1, minIdx2] = ind2sub([howmanyscalelength, howmanyepsilon], find(min(min(avg_loss_mat)) == avg_loss_mat,2));
-% subplot(211); plot(avg_loss_mat')
-%
-% load(strcat('blowflydata: ', num2str(whichmethod), '_thIter', num2str(minIdx1), '.mat'));
-% params_ours = results.post_mean(minIdx2,:);
-% simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
-%
-% % load(strcat('blowflydata: ', num2str(whichmethod), '_medianHeuristic', '.mat'));
-% % params_ours = results.post_mean(2,:);
-% % simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
-%
-% subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-'); title('simulated data');
-% set(gca, 'ylim', [0 max(simuldat_ours/1000) + 1])
-%
-% %%
-%
-% opts_sl = opts;
-% opts_sl.params = exp([ 3.76529501 -1.03266828  5.46587492 -0.40094812 -0.96334847  log(7) ]);
-% % simuldat_sl = gendata_pop_dyn_eqn(params_sl, n);
-% avg_loss_sl = compute_loss_for_epsilon_kernelparam(opts_sl);
-% [min(min(avg_loss_mat)) avg_loss_sl]
+% boxplot(msemat); 
+% % legend('ours', 'synthetic likelihood abc', 'kabc')
