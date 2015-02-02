@@ -165,7 +165,7 @@ for i=1:num_rept_mse
     
 %     subplot(311); plot(1:180, flydata/1000, 'k', 1:180, simuldat_sl./1000, 'b-'); title('simulated data');
 %     set(gca, 'ylim', [0 max(simuldat_sl/1000) + 1])
-    subplot(311); plot(1:180, flydata/1000, 'k', 1:180, simuldat_sl./1000, 'b-'); title('simulated data');
+    hold on; plot(1:180, flydata/1000, 'k', 1:180, simuldat_sl./1000, 'b-'); title('simulated data');
     set(gca, 'ylim', [0 max(simuldat_sl/1000) + 1]); ylabel('synthetic likelihood abc');
     
     mse(ss_for_blowflydata(simuldat_sl))
@@ -178,7 +178,7 @@ for i=1:num_rept_mse
     load theta_opt.mat;
     params_kabc = theta_opt;
     simuldat_kabc = gendata_pop_dyn_eqn(params_kabc, n);
-    subplot(312); plot(1:180, flydata/1000, 'k', 1:180, simuldat_kabc./1000, 'k--'); 
+    hold on; plot(1:180, flydata/1000, 'k', 1:180, simuldat_kabc./1000, 'k--'); 
     set(gca, 'ylim', [0 max(simuldat_kabc/1000) + 1]); ylabel('k abc');
 
     
@@ -193,7 +193,7 @@ for i=1:num_rept_mse
 %     load(strcat('blowflydata: ', num2str(whichmethod), 'fromXV_higherepsilon', '.mat'), 'results');
 %     params_ours = results.post_mean; 
     simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
-    subplot(313); plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-');
+    plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-');
     set(gca, 'ylim', [0 12]); ylabel('k abc');
 
     
