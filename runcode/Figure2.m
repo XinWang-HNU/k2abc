@@ -213,67 +213,20 @@ std(msemat)
 boxplot(msemat); 
 % legend('ours', 'synthetic likelihood abc', 'kabc')
 
-%% computing mse on ss with posterior samples of theta
+%% how about showing trajectories of y given 
 
-% num_rept_mse = 5000;
-% msemat = zeros(num_rept_mse, 3);
-% s = ss_for_blowflydata(flydata);
-% mse = @(a) norm(s-a);
-% 
-% % draw samples for theta from posterior 
-% whichmethod = 'ssf_kernel_abc';
-% minIdx1= 11;
-% minIdx2 = 2;
-% load(strcat('blowflydata: ', num2str(whichmethod), 'fromXV', '.mat'), 'results');
-% weightvec = results.R.norm_weights(:, minIdx2);
-% theta_samps_prior  = results.R.latent_samples;
-% idx_to_samp = discrete_rnd(weightvec', 1, 1e4);
-% oursamps = theta_samps_prior(:, idx_to_samp);
-%     
-% for i=1:num_rept_mse
-%     
-%     
-%     %% synthetic likelihood abc
-%     load thetas_sl_ep_point1.mat % accpt rate is 0.26
-% %  load thetas_sl_ep_point01.mat
-% %     params_sl = mean(thetas);
-%     params_sl = thetas(i,:);
-%     params_sl = [exp(params_sl(1:5)) params_sl(end)];
-%     simuldat_sl = gendata_pop_dyn_eqn(params_sl, n);
-%     
-% %     subplot(311); plot(1:180, flydata/1000, 'k', 1:180, simuldat_sl./1000, 'b-'); title('simulated data');
-% %     set(gca, 'ylim', [0 max(simuldat_sl/1000) + 1])
-%     subplot(311); plot(1:180, flydata/1000, 'k', 1:180, simuldat_sl./1000, 'b-'); title('simulated data');
-%     set(gca, 'ylim', [0 max(simuldat_sl/1000) + 1]); ylabel('synthetic likelihood abc');
-%     
-% %     mse(ss_for_blowflydata(simuldat_sl))
-%     %% kabc (conditional mean embedding)
-%     
-%     load theta_opt.mat;
-%     params_kabc = theta_opt;
-%     simuldat_kabc = gendata_pop_dyn_eqn(params_kabc, n);
-%     subplot(312); plot(1:180, flydata/1000, 'k', 1:180, simuldat_kabc./1000, 'k--'); 
-%     set(gca, 'ylim', [0 max(simuldat_kabc/1000) + 1]); ylabel('k abc');
-%     
-%     %% ours
-% 
-%     params_ours = oursamps(:,i); 
-%     simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
-%     subplot(313); plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-');
-%     set(gca, 'ylim', [0 12]); ylabel('k abc');
-% 
-%     % compute chosen summary statistics
-%     s_ours =  ss_for_blowflydata(simuldat_ours);
-%     s_kabc = ss_for_blowflydata(simuldat_kabc);
-%     s_sl = ss_for_blowflydata(simuldat_sl);
-%     
-% %     mse(s_ours)
-%     msemat(i,:) = [mse(s_ours) mse(s_sl) mse(s_kabc)];
-%     
-% end
-% 
-% mean(msemat)
-% std(msemat)
-% %%
-% boxplot(msemat); 
-% % legend('ours', 'synthetic likelihood abc', 'kabc')
+load flydata.mat
+n = length(flydata);
+
+subplot(311);
+plot(1:180, flydata/1000, 'k', 1:180, gendata_pop_dyn_eqn(sample_from_prior_blowflydata(1), n)./1000,  'm');
+set(gca, 'ylim', [0 12]);
+
+subplot(312);
+plot(1:180, flydata/1000, 'k', 1:180, gendata_pop_dyn_eqn(sample_from_prior_blowflydata(1), n)./1000,  'b');
+set(gca, 'ylim', [0 12]);
+
+subplot(313);
+plot(1:180, flydata/1000, 'k', 1:180, gendata_pop_dyn_eqn(sample_from_prior_blowflydata(1), n)./1000,  'r');
+set(gca, 'ylim', [0 12]);
+
