@@ -74,7 +74,7 @@ assert(size(latent_samples, 2) == num_latent_draws, ...
 % Distance between sets of pseudo_data and Obs for each sampled latent variable
 dists = zeros(num_latent_draws, 1);
 % draw pseudo_data once 
-parfor j=1:num_latent_draws
+for j=1:num_latent_draws
     
     % visualization of sample number
     if rem(j, 100)==0 % every 100th number will be shown 
