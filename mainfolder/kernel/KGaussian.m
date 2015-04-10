@@ -31,7 +31,6 @@ classdef KGaussian < Kernel
         end
         
         function Kvec = pairEval(this, X, Y)
-            % lazy implmentation. Obviously this can be improved.
             assert(isnumeric(X));
             assert(isnumeric(Y));
             
@@ -40,21 +39,13 @@ classdef KGaussian < Kernel
 
         end
         
-        %function Param = getParam(this)
-        %    Param = {this.sigma2};
-        %end
-        
         function s=shortSummary(this)
             s = sprintf('%s(%.3g)', mfilename, this.sigma2);
         end
     end
     
     methods (Static)
-        %function Ks=candidates(params)
-        %    % params is a numeric array
-        %    Kgauss = KGaussian(params);
-        %    Ks = num2cell(Kgauss);
-        %end
+
     end
     
     

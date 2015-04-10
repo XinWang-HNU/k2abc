@@ -13,14 +13,14 @@ assert(isnumeric(X));
 assert(isnumeric(Y));
 
 nx = size(X, 2);
-Kx = ker.eval(X, X);
+Kx = ker.selfEval(X);
 diagIx = 1:(nx+1):numel(Kx);
 xx = (sum(Kx(:)) - sum(Kx(diagIx)) )/(nx*(nx-1));
 %xx = mean(Kx(:));
 clear Kx
 
 ny = size(Y, 2);
-Ky = ker.eval(Y, Y);
+Ky = ker.selfEval(Y);
 diagIy = 1:(ny+1):numel(Ky);
 yy = (sum(Ky(:)) - sum(Ky(diagIy)) )/(ny*(ny-1));
 %yy = mean(Ky(:));

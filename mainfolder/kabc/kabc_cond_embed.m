@@ -32,6 +32,7 @@ function [results, op ] = kabc_cond_embed(stats, params, op )
 %   scalable if n in stats is large. 
 %   Improve it later if needed. 
 %
+% @author Wittawat Jitkrittum
 
 [d, n] = size(stats);
 % random seed. This will affect the partitioning of the data in cross

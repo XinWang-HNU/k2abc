@@ -22,6 +22,15 @@ classdef Kernel < handle
         
     end
     
+    methods 
+        % Just like eval(.) but data1 = data2. This method may be more efficient 
+        % for some kernel.
+        function Kmat = selfEval(this, data)
+            Kmat = this.eval(data, data);
+        end
+
+    end
+
     methods (Static)
         
         %function Ks=candidates(params)
@@ -34,4 +43,3 @@ classdef Kernel < handle
     end
     
 end
-
