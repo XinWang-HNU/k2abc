@@ -3,6 +3,7 @@ function [ funcs ] = funcs_distreg_zoltan( )
 %
     funcs = struct();
     funcs.meddistance_bags = @meddistance_bags;
+    funcs.regress_weights_func = @regress_weights_func;
 
 end
 
@@ -20,5 +21,14 @@ function med = meddistance_bags(bags, subbags )
 end
 
 
-
+function W = regress_weights_func(K, train_bags, gwidth2, outwidth2, reg, ...
+        linsolve_opts, test_bags)
+    % final regression function giving the weights (can be negative) 
+    % on each param (regression target)
+    
+    ker = KGGauss(gwidth2, outwidth2);
+    Krs = ker.eval(train_bags, test_bags);
+    ntr = size(K, 1);
+    W = linsolve(K + reg*eye(ntr), Krs, linsolve_opts);
+end
 

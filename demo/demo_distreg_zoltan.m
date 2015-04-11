@@ -42,7 +42,7 @@ for i=1:size(train_params, 2)
 end
 
 % ------- options for distreg_zoltan ------------
-% All options are described in kabc_cond_embed
+% All options are described in distreg_zoltan
 op = struct();
 op.seed = seed;
 

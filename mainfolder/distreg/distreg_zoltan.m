@@ -132,7 +132,8 @@ results = struct();
 ker = KGGauss(best_gwidth2, best_outwidth2);
 K = ker.selfEval(bags);
 
-results.regress_weights_func = @(test_bags)regress_weights_func(K, bags, ...
+funcs = funcs_distreg_zoltan();
+results.regress_weights_func = @(test_bags)funcs.regress_weights_func(K, bags, ...
     best_gwidth2, best_outwidth2, best_reg, linsolve_opts, test_bags);
 results.best_gwidth2 = best_gwidth2;
 results.best_outwidth2 = best_outwidth2;
@@ -142,16 +143,5 @@ results.cverr = CVErr;
 results.cverr_foldmean = error_grid;
 
 rng(oldRng);
-end
-
-function W = regress_weights_func(K, train_bags, gwidth2, outwidth2, reg, ...
-        linsolve_opts, test_bags)
-    % final regression function giving the weights (can be negative) 
-    % on each param (regression target)
-    
-    ker = KGGauss(gwidth2, outwidth2);
-    Krs = ker.eval(train_bags, test_bags);
-    ntr = size(K, 1);
-    W = linsolve(K + reg*eye(ntr), Krs, linsolve_opts);
 end
 

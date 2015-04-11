@@ -42,6 +42,14 @@ classdef KGaussian < Kernel
         function s=shortSummary(this)
             s = sprintf('%s(%.3g)', mfilename, this.sigma2);
         end
+
+        function Kmat = selfEval(this, X)
+            assert(isnumeric(X));
+            s2 = sum(X.^2, 1);
+
+            D2 = bsxfun(@plus, s2, s2') - 2*(X'*X );
+            Kmat = exp(-D2./(2*(this.sigma2)));
+        end
     end
     
     methods (Static)
