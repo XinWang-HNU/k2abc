@@ -1,4 +1,4 @@
-function [theta summary_stats_samp abc_discs] = bayes_ind_inf_is_gandk(y,M,n,cov_rw,abc_tol,numComp)
+function [theta, summary_stats_samp, abc_discs] = bayes_ind_inf_is_gandk(y,M,n,cov_rw,abc_tol,numComp)
 
 %% Christopher Drovandi's code 
 
