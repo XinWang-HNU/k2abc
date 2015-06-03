@@ -146,10 +146,153 @@ set(gca, 'xlim', 2+ [-5 5], 'ylim', [0 5000]);  box off;
 
 % params_sl = exp([ 3.76529501 -1.03266828  5.46587492 -0.40094812 -0.96334847  log(7) ]);
 
+%% indirect_score_abc results
+
+iter = 1; 
+whichmethod =  'indirect_score';
+load(strcat('blowflydata: ', num2str(whichmethod), '_thIter', num2str(iter), '.mat'), 'results');
+
+thetas = results.R.latent_samples;
+TF = thetas==0;
+TFrow = ~all(TF,2);
+thetas = thetas(TFrow,:);
+
+nbin = 3; 
+
+subplot(3,6,7); hist(thetas(:,1), nbin); 
+hold on; plot(mean(thetas(:,1)), 1:5000, 'r-');
+set(gca, 'xlim', 2+2.*[-5 5], 'ylim', [0 5000]); box off;
+
+subplot(3,6,8); hist(thetas(:,2), nbin); 
+hold on; plot(mean(thetas(:,2)), 1:5000, 'r-'); set(gca, 'xlim', -1+0.4.*[-5 5], 'ylim', [0 5000]);  box off;
+
+subplot(3,6,9); hist(thetas(:,3), nbin); 
+hold on; plot(mean(thetas(:,3)), 1:5000, 'r-'); set(gca, 'xlim', 5+0.5.*[-5 5], 'ylim', [0 5000]);  box off;
+
+subplot(3,6,10); hist(thetas(:,4), nbin); 
+hold on; plot(mean(thetas(:,4)), 1:5000, 'r-'); set(gca, 'xlim', -0.5+ [-5 5], 'ylim', [0 5000]);  box off;
+
+subplot(3,6,11); hist(thetas(:,5), nbin);  
+hold on; plot(mean(thetas(:,5)), 1:5000, 'r-'); set(gca, 'xlim', -0.5+ [-5 5], 'ylim', [0 5000]);  box off;
+
+subplot(3,6,12); hist(log(thetas(:,6)), nbin); 
+hold on; plot(mean(log(thetas(:,6))), 1:5000, 'r-'); set(gca, 'xlim', 2+ [-5 5], 'ylim', [0 5000]);  box off;
+
+indirect_score_abc = mean(thetas); 
+
+
+%% rejection-SA_ABC     
+
+load rejection-SA-ABC.mat
+
+thetas = zeros(1000, 6);
+thetas(:,1) = PosteriorSample.P;
+thetas(:,2) = PosteriorSample.delta;
+thetas(:,3) = PosteriorSample.N0;
+thetas(:,4) = PosteriorSample.sigd;
+thetas(:,5) = PosteriorSample.sigp;
+thetas(:,6) = PosteriorSample.tau;
+
+nbin = 3; 
+
+subplot(3,6,7); hist(thetas(:,1), nbin); 
+hold on; plot(mean(thetas(:,1)), 1:5000, 'r-');
+set(gca, 'xlim', 2+2.*[-5 5], 'ylim', [0 5000]); box off;
+
+subplot(3,6,8); hist(thetas(:,2), nbin); 
+hold on; plot(mean(thetas(:,2)), 1:5000, 'r-'); set(gca, 'xlim', -1+0.4.*[-5 5], 'ylim', [0 5000]);  box off;
+
+subplot(3,6,9); hist(thetas(:,3), nbin); 
+hold on; plot(mean(thetas(:,3)), 1:5000, 'r-'); set(gca, 'xlim', 5+0.5.*[-5 5], 'ylim', [0 5000]);  box off;
+
+subplot(3,6,10); hist(thetas(:,4), nbin); 
+hold on; plot(mean(thetas(:,4)), 1:5000, 'r-'); set(gca, 'xlim', -0.5+ [-5 5], 'ylim', [0 5000]);  box off;
+
+subplot(3,6,11); hist(thetas(:,5), nbin);   
+hold on; plot(mean(thetas(:,5)), 1:5000, 'r-'); set(gca, 'xlim', -0.5+ [-5 5], 'ylim', [0 5000]);  box off;
+
+subplot(3,6,12); hist(log(thetas(:,6)), nbin); 
+hold on; plot(mean(log(thetas(:,6))), 1:5000, 'r-'); set(gca, 'xlim', 2+ [-5 5], 'ylim', [0 5000]);  box off;
+
+reject_sa_abc = mean(thetas); 
+
+%% 
+
+load rejection-SA-ABCQ.mat
+
+thetas = zeros(1000, 6);
+thetas(:,1) = PosteriorSample.P;
+thetas(:,2) = PosteriorSample.delta;
+thetas(:,3) = PosteriorSample.N0;
+thetas(:,4) = PosteriorSample.sigd;
+thetas(:,5) = PosteriorSample.sigp;
+thetas(:,6) = PosteriorSample.tau;
+
+reject_sa_abc_q = mean(thetas); 
+
+%%
+
+load rejection-SA-ABC-WoodSS.mat
+
+thetas = zeros(1000, 6);
+thetas(:,1) = PosteriorSample.P;
+thetas(:,2) = PosteriorSample.delta;
+thetas(:,3) = PosteriorSample.N0;
+thetas(:,4) = PosteriorSample.sigd;
+thetas(:,5) = PosteriorSample.sigp;
+thetas(:,6) = PosteriorSample.tau;
+
+reject_sa_abc_woodss = mean(thetas); 
+
+
+%%
+
+load weighted-SA-ABC-WoodSS.mat
+
+thetas = zeros(10000, 6);
+thetas(:,1) = PosteriorSample.P;
+thetas(:,2) = PosteriorSample.delta;
+thetas(:,3) = PosteriorSample.N0;
+thetas(:,4) = PosteriorSample.sigd;
+thetas(:,5) = PosteriorSample.sigp;
+thetas(:,6) = PosteriorSample.tau;
+
+weighted_sa_abc_woodss = mean(thetas); 
+
+%%
+
+load weighted-SA-ABCQ.mat
+thetas = zeros(10000, 6);
+thetas(:,1) = PosteriorSample.P;
+thetas(:,2) = PosteriorSample.delta;
+thetas(:,3) = PosteriorSample.N0;
+thetas(:,4) = PosteriorSample.sigd;
+thetas(:,5) = PosteriorSample.sigp;
+thetas(:,6) = PosteriorSample.tau;
+
+weighted_sa_abc_q= mean(thetas); 
+
+%%
+
+load weighted-SA-ABC.mat
+
+thetas = zeros(10000, 6);
+thetas(:,1) = PosteriorSample.P;
+thetas(:,2) = PosteriorSample.delta;
+thetas(:,3) = PosteriorSample.N0;
+thetas(:,4) = PosteriorSample.sigd;
+thetas(:,5) = PosteriorSample.sigp;
+thetas(:,6) = PosteriorSample.tau;
+
+weighted_sa_abc = mean(thetas); 
+
 %% computing mse on ss
 
+load flydata.mat
+n = length(flydata);
+
 num_rept_mse = 100;
-msemat = zeros(num_rept_mse, 3);
+msemat = zeros(num_rept_mse, 10);
 s = ss_for_blowflydata(flydata);
 mse = @(a) norm(s-a);
     
@@ -196,21 +339,53 @@ for i=1:num_rept_mse
     plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-');
     set(gca, 'ylim', [0 12]); ylabel('k abc');
 
+    %% indirect_score_abc
     
-    % compute chosen summary statistics
+    simuldat_is = gendata_pop_dyn_eqn(indirect_score_abc, n);
+    plot(1:180, flydata/1000, 'k', 1:180, simuldat_is./1000, 'm-');
+    set(gca, 'ylim', [0 12]); ylabel('is abc');
+    
+    %% rejection_SA_ABC
+   
+    simuldat_reject_sa = gendata_pop_dyn_eqn(reject_sa_abc, n);
+    simuldat_weighted_sa = gendata_pop_dyn_eqn(weighted_sa_abc, n);
+    plot(1:180, flydata/1000, 'k', 1:180, simuldat_reject_sa./1000, 'm-');
+    set(gca, 'ylim', [0 12]); ylabel('is abc');
+    
+    %% rejection_SA_ABCQ
+    
+    simuldat_reject_sa_q = gendata_pop_dyn_eqn(reject_sa_abc_q,n);
+    simuldat_weighted_sa_q = gendata_pop_dyn_eqn(weighted_sa_abc_q,n);
+    
+    %% rejection_SA_ABC_woodss
+    
+    simuldat_reject_sa_woodss = gendata_pop_dyn_eqn(reject_sa_abc_woodss, n);
+    simuldat_weighted_sa_woodss = gendata_pop_dyn_eqn(weighted_sa_abc_woodss, n);
+    
+    %% compute chosen summary statistics
     s_ours =  ss_for_blowflydata(simuldat_ours);
     s_kabc = ss_for_blowflydata(simuldat_kabc);
     s_sl = ss_for_blowflydata(simuldat_sl);
-    
-    mse(s_ours)
-    msemat(i,:) = [mse(s_ours) mse(s_sl) mse(s_kabc)];
+    s_is = ss_for_blowflydata(simuldat_is);
+    s_reject_sa = ss_for_blowflydata(simuldat_reject_sa);
+    s_reject_sa_q = ss_for_blowflydata(simuldat_reject_sa_q);
+    s_reject_sa_woodss = ss_for_blowflydata(simuldat_reject_sa_woodss);
+    s_weighted_sa = ss_for_blowflydata(simuldat_weighted_sa);
+    s_weighted_sa_q = ss_for_blowflydata(simuldat_weighted_sa_q);
+    s_weighted_sa_woodss = ss_for_blowflydata(simuldat_weighted_sa_woodss);
+
+    msemat(i,:) = [mse(s_ours) mse(s_sl) mse(s_reject_sa_woodss)  mse(s_is) mse(s_reject_sa)  mse(s_reject_sa_q) mse(s_weighted_sa_woodss) mse(s_weighted_sa)  mse(s_weighted_sa_q) mse(s_kabc) ];
     
 end
 
 mean(msemat)
 std(msemat)
+
 %%
-boxplot(msemat); 
+% boxplot(msemat, {'k2', 'sl', 'sa-woods', 'aux', 'sa', 'saq', 'k'}); 
+
+boxplot(msemat, {'k2', 'sl', 'sa-woods', 'aux', 'sa', 'saq', 'sa-woods-w', 'sa-w', 'saq-w','k'}); 
+% set(gca, 'xticklabel',method_names);
 % legend('ours', 'synthetic likelihood abc', 'kabc')
 
 %% how about showing trajectories of y given 
