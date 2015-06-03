@@ -24,7 +24,7 @@ proposal_dist = @(n)randn(1, n)*sqrt(8);
 
 % distreg_zoltan_custom_loss needs a training set containing (bags,  parameter) pairs.
 % construct a training set.
-num_latent_draws = 150; % this is also the training size
+num_latent_draws = 100; % this is also the training size
 num_pseudo_data = 50;
 train_params = proposal_dist(num_latent_draws);
 train_bags = cell(1, num_latent_draws);
@@ -42,8 +42,7 @@ end
 op = struct();
 op.seed = seed;
 
-% a list of regularization parameter candidates in kabc. 
-% Chosen by cross validation.
+% a list of regularization parameter candidates 
 ntr = num_latent_draws;
 op.drz_reg_list = 10.^(-4:2:4);
 
@@ -51,7 +50,7 @@ op.drz_reg_list = 10.^(-4:2:4);
 funcs = funcs_distreg_zoltan();
 subbags = 200;
 med = funcs.meddistance_bags(train_bags, subbags);
-op.drz_gwidth2_list = [1, 2].* (med^2);
+op.drz_gwidth2_list = [1/2, 1, 2].* (med^2);
 
 % epsilon values
 op.drz_outwidth2_list = 10.^(-3:-1);
@@ -59,7 +58,7 @@ op.drz_outwidth2_list = 10.^(-3:-1);
 %
 % generate some actual observations.
 true_theta = 3;
-num_obs = 200;
+num_obs = 800;
 num_obs_validate = ceil(0.5*num_obs);
 obs = likelihood_func(true_theta, num_obs );
 held_out_obs = obs( (num_obs_validate+1):end);
@@ -69,7 +68,7 @@ held_out_obs = obs( (num_obs_validate+1):end);
 % f: (weights_func, train_bags, train_target ) -> real number.  
 % Lower is better.
 op.drz_custom_loss_func = @(weights_func, train_bags, train_target) ... 
-    norm( hist(likelihood_func(train_target*weights_func(obs(1:num_obs_validate)), 800)) ...
+    norm( hist(likelihood_func( train_target*weights_func(obs(1:num_obs_validate) ), 800)) ...
     - hist(held_out_obs) );
 
 % ---- training ------
