@@ -7,7 +7,8 @@ fs = filesep();
 addpath(pwd);
 
 % folders to be added by genpath
-gfolders = {'mainfolder', 'runcode', 'thirdpartycode/xunit/', 'experiments', 'saved', 'demo'};
+gfolders = {'mainfolder', 'runcode', 'thirdpartycode/xunit/', 'experiments', ...
+    'saved', 'demo', 'data'};
 for i=1:length(gfolders)
     fol = gfolders{i};
     p = [base , fs, fol];

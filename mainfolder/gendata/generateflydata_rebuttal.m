@@ -1,5 +1,7 @@
 %% generate data from the fly dynamics equation for making our rebuttal "stronger"!
 % mijung wrote on 
+% The main purpose of this is to test ABC algorithms when the true generating 
+% parameter is known. 
 
 clear all;
 clc;
@@ -8,7 +10,7 @@ seed = 10;
 oldRng = rng();
 rng(seed);
 
-seqleng = 100;
+seqleng = 180;
 
 % I will set parameters that are close to posterior mean from k2abc (but
 % this can be anything really).
@@ -21,10 +23,16 @@ params = [29 0.2 260 0.6 0.3 7];
 % tau = round(params(6));
 simuldat = gendata_pop_dyn_eqn(params, seqleng);
 
-subplot(211); plot(1:seqleng, simuldat)
-subplot(212); hist(simuldat)
+subplot(211); 
+plot(simuldat)
+subplot(212); 
+hist(simuldat)
 
-save simuldat simuldat
-save params params
+% Save to the data folder 
+desc = ['A Blowfly population trajectory drawn from the posterior mean of k2-abc.', ...
+    ' Generator: generateflydata_rebuttal.m'];
+funcs = funcs_global();
+fpath = funcs.inDataFolder(sprintf('blowfly_simul_s%d.mat', seed));
+save(fpath, 'desc', 'params', 'simuldat');
 
 rng(oldRng);
