@@ -1,28 +1,21 @@
 % to test indirect inference with score (auxiliary model example) on blowflydata 
 % mijung wrote on May 3, 2015
+%
+% Wittawat modified on Aug 7, 2015 to make it work without using run_iteration_blowflydata()
+% which does not support indirect_score_abc as used by Mijung.
 
-clear all;
-clc;
-clf;
 
 %% (1) load data
-load flydata.mat
+%load flydata.mat
+data = load('blowfly_simul_s10');
+yobs = data.simuldat;
+flydata = yobs;
 
-seed = 1;
 oldRng = rng();
-rng(seed);
 
 n = length(flydata);
-
-%% test ssf-abc
-
 maxiter = 1;
 
-%whichmethod = 'kabc_cond_embed';
-% whichmethod = 'ssf_kernel_abc';
-% whichmethod = 'rejection_abc';
-% whichmethod = 'ssb_abc';
-whichmethod = 'indirect_score';
 
 opts.num_obs = n;
 opts.num_theta_samps = 10000;
@@ -30,16 +23,34 @@ opts.num_pseudodata_samps = 4*n;
 opts.dim_theta = 6; % dim(theta)
 opts.yobs = flydata; 
 
-for iter = 1 : maxiter
+op = opts;
+op.likelihood_func = @ gendata_pop_dyn_eqn; 
+op.proposal_dist = @(n) sample_from_prior_blowflydata(n); 
+op.num_latent_draws = opts.num_theta_samps;
+op.num_pseudo_data = opts.num_pseudodata_samps;
+op.dim_theta = opts.dim_theta; 
+% The number of Gaussian mixture components. This may need some tuning ?
+op.numComp = 3;
+
+funcs = funcs_global();
+
+for iter = 1:maxiter
     
+    seed = iter;
+    rng(seed);
+
     [iter maxiter]
-
-    results = run_iteration_blowflydata(whichmethod, opts, iter);
-
-    save(strcat('blowflydata: ', num2str(whichmethod), '_thIter', num2str(iter), '.mat'), 'results');
+    [results, op] = indirect_score_abc(yobs, op);
+    latent_samples = results.latent_samples;
+    fname = sprintf('testblowfly_is-s%d_ntheta%d', iter, opts.num_theta_samps);
+    fpath = funcs.runcodeSavedFile(fname);
+    timestamp = clock();
+    
+    save(fpath, 'timestamp', 'op', 'latent_samples', 'seed');
 
 end
 
+rng(oldRng);
 %%
 
 
@@ -84,5 +95,4 @@ end
 % 
 
 
-% rng(oldRng);
 
