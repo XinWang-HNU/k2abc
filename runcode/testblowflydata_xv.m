@@ -131,8 +131,8 @@ subplot(211); plot(avg_loss_mat');
 load(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(minIdx1), '_thxvset', '.mat'));
 params_ours = results.post_mean(minIdx2,:);
 % params_ours = results.post_mean(1, :);
+%%
 simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
-
 subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-'); title('simulated data');
 set(gca, 'ylim', [0 max(simuldat_ours/1000) + 1])
 

@@ -1,5 +1,5 @@
 from abcpy.factories import *
-#from abcpy.problems.exponential     import *
+from abcpy.problems.exponential     import *
 
 import pylab as pp
 import numpy as np
