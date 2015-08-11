@@ -1,13 +1,22 @@
 % cross-validation for testblowdata
 % this code is what I used for Fig 2
 % mijung wrote and tested on jan 27, 2015
+
+% then I edited for testing simulated fly data
+
 clear all;
 clc;
 clf;
 
 %% (1) load data
 
-load flydata.mat
+% load flydata.mat
+
+% newly added for testing   
+load ../data/blowfly_simul_s10.mat
+
+flydata = simuldat';
+true_params = params;
 
 % seed = 11;
 % oldRng = rng();
@@ -19,12 +28,16 @@ n = length(flydata);
 
 whichmethod =  'ssf_kernel_abc';
 
-opts.num_theta_samps = 10000;
+opts.num_theta_samps = 1000;
 opts.dim_theta = 6; % dim(theta)
 opts.yobs = flydata';
 
-% width2mat = meddistance(opts.yobs)^2.*logspace(-4,2,maxiter);
-width2mat = meddistance(opts.yobs)^2.*2.^[-10:0.5:5];
+% howmanyscalelength = 10;
+% width2mat = meddistance(opts.yobs)^2.*logspace(-1,0,howmanyscalelength);
+% width2mat = meddistance(opts.yobs)^2.;
+howmanyscalelength = 20;
+% width2mat = meddistance(opts.yobs)^2.*logspace(-4,2,howmanyscalelength);
+width2mat = meddistance(opts.yobs)^2.*2.^linspace(-10, 4, howmanyscalelength);
 maxiter = length(width2mat); 
 
 % split data into training and test data
@@ -39,13 +52,16 @@ assert(length(idx_trn) == n);
 ntr = sum(idx_trn);
 
 opts.num_obs = ntr;
-opts.num_pseudodata_samps = 5000; 
-% opts.num_pseudodata_samps = 4*ntr;
+% opts.num_pseudodata_samps = 1000; 
+opts.num_pseudodata_samps = 4*ntr;
 opts.yobs = flydata(1:ntr)';
 
-for iter = 1 : maxiter
+howmanyepsilon = 10;
+opts.epsilon_list = logspace(-6, 1, howmanyepsilon);
+
+for iter = 1 : howmanyscalelength
     
-    [iter maxiter] 
+    [iter howmanyscalelength] 
     
     opts.width2 = width2mat(iter);
     
@@ -53,29 +69,15 @@ for iter = 1 : maxiter
     results = run_iteration_blowflydata(whichmethod, opts, seed);
     
     %     save results
-    save(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(iter), '_thxvset_w_higher_epsilon', '.mat'), 'results');
+     save(strcat('blowfly_simuldata: ', num2str(whichmethod), '_thLengthScale', num2str(iter), '_thxvset_theta1000', '.mat'), 'results');
+%      save(strcat('blowfly_simuldata: ', num2str(whichmethod), '_thLengthScale', num2str(iter), '_thxvset_fine_grid', '.mat'), 'results');
+%     save(strcat('blowfly_simuldata: ', num2str(whichmethod), '_thLengthScale', num2str(iter), '_thxvset', '.mat'), 'results');
+%     save(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(iter), '_thxvset_w_higher_epsilon', '.mat'), 'results');
 %     save(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(iter), '_thxvset', '.mat'), 'results');
     
 end
 
 %% choose which one is the best
-
-% opts.num_theta_samps = 10000;
-% opts.dim_theta = 6; % dim(theta)
-opts.yobs = flydata';
-
-howmanyscalelength = 20;
-width2mat = meddistance(flydata')^2.*logspace(-4,2,howmanyscalelength);
-% width2mat = meddistance(opts.yobs)^2.*2.^[-5:5];
-% width2mat = meddistance(opts.yobs)^2.*2.^[-10:0.5:5];
-% howmanyscalelength = length(width2mat);
-
-howmanyepsilon = 9;
-epsilon_list = logspace(-5, 0, howmanyepsilon);
-
-% howmanyepsilon = 10;
-% % epsilon_list = logspace(-5, -3, howmanyepsilon);
-% epsilon_list = logspace(-5, 1, 10);
 
 avg_loss_mat = zeros(howmanyscalelength, howmanyepsilon);
 
@@ -100,10 +102,14 @@ opts.num_samps = length(testdat);
 for i=1:howmanyscalelength
     
 %        load(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(i), '_thxvset_w_higher_epsilon', '.mat'));
-    load(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(i), '_thxvset', '.mat'));
+%     load(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(i), '_thxvset', '.mat'));
+%      load(strcat('blowfly_simuldata: ', num2str(whichmethod), '_thLengthScale', num2str(i), '_thxvset', '.mat'));
+%     load(strcat('blowfly_simuldata: ', num2str(whichmethod), '_thLengthScale', num2str(i), '_thxvset_fine_grid', '.mat'));
+    load(strcat('blowfly_simuldata: ', num2str(whichmethod), '_thLengthScale', num2str(i), '_thxvset_theta1000', '.mat'));
     
     for j=1:howmanyepsilon
         [i j]
+        
         opts.params = results.post_mean(j,:);
         %%
         %         simuldat_ours = gendata_pop_dyn_eqn(opts.params, n/4);
@@ -113,14 +119,19 @@ for i=1:howmanyscalelength
         %          avg_loss_mat(i,j) = opts.obj(alignedX, alignedY);
         %         pause;
         %%
-        avg_loss_mat(i,j) = compute_loss_for_epsilon_kernelparam(testdat, opts);
+        
+        if sum(isnan(opts.params))>0
+            avg_loss_mat(i,j) = 100;
+        else
+            avg_loss_mat(i,j) = compute_loss_for_epsilon_kernelparam(testdat, opts);
+        end
     end
     
     %     end
     
 end
 
-%%
+
 [minIdx1, minIdx2] = ind2sub([howmanyscalelength, howmanyepsilon], find(min(min(avg_loss_mat)) == avg_loss_mat,2))
 subplot(211); plot(avg_loss_mat'); 
 % legend('l=2^-5*median', 'l=2^-4*median', 'l=2^-3*median', 'l=2^-2*median', 'l=2^-1*median', 'l=median', 'l=2*median', 'l=2^2*median', 'l=2^3*median', 'l=2^4*median', 'l=2^5*median');
@@ -128,9 +139,17 @@ subplot(211); plot(avg_loss_mat');
 % set(gca, 'xscale', 'log');
 
 % load(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(minIdx1), '_thxvset_w_higher_epsilon', '.mat'));
-load(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(minIdx1), '_thxvset', '.mat'));
-params_ours = results.post_mean(minIdx2,:);
+% load(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(minIdx1), '_thxvset', '.mat'));
+% load(strcat('blowfly_simuldata: ', num2str(whichmethod), '_thLengthScale', num2str(minIdx1), '_thxvset', '.mat'));
+% load(strcat('blowfly_simuldata: ', num2str(whichmethod), '_thLengthScale', num2str(minIdx1), '_thxvset_fine_grid', '.mat'));
+load(strcat('blowfly_simuldata: ', num2str(whichmethod), '_thLengthScale', num2str(minIdx1), '_thxvset_theta1000', '.mat'));
+
+
+params_ours = results.post_mean(minIdx2,:)
 % params_ours = results.post_mean(1, :);
+
+err = mean(abs(params_ours - true_params)./true_params)
+
 simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
 
 subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-'); title('simulated data');
@@ -140,15 +159,23 @@ set(gca, 'ylim', [0 max(simuldat_ours/1000) + 1])
 
 % now we have optimal params which we use to run our method using the entire dataset 
 
-opts.epsilon_list = epsilon_list(minIdx2);
+opts.epsilon_list = logspace(-6, 1, howmanyepsilon);
+opts.epsilon_list = opts.epsilon_list(minIdx2);
+
 opts.num_obs = n;
-opts.num_theta_samps = 10000;
-opts.num_pseudodata_samps = 4*n;
+opts.num_theta_samps = 1000;
+opts.num_pseudodata_samps = n*4;
 opts.dim_theta = 6; % dim(theta)
 opts.yobs = flydata';
 
 opts.width2 = width2mat(minIdx1);
-results = run_iteration_blowflydata(whichmethod, opts, 40);
+% results = run_iteration_blowflydata(whichmethod, opts, 4);
+results = run_iteration_blowflydata(whichmethod, opts, 14);
+
+results.post_mean 
+
+err = mean(abs(results.post_mean - true_params)./true_params)
+
 % save(strcat('blowflydata: ', num2str(whichmethod), 'fromXV', '.mat'), 'results');
 % load(strcat('blowflydata: ', num2str(whichmethod), 'fromXV', '.mat'), 'results'); 
 % params_ours = results.post_mean(1,:);
