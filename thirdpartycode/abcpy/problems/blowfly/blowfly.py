@@ -1,9 +1,11 @@
 from abcpy.problem import BaseProblem
+from abcpy.observation_group import ObservationGroup
 from abcpy.plotting import *
 from abcpy.helpers import *
 import numpy as np
 import scipy as sp
 import pylab as pp
+from scipy.io import savemat
 
 import pdb
 
@@ -11,18 +13,21 @@ def default_params():
   mu_log_P         = 2.0
   std_log_P        = 2.0
   mu_log_delta     = -1.0
-  std_log_delta    = 2.0
+  std_log_delta    = 0.4
   mu_log_N0        = 5.0
-  std_log_N0       = 2.0
-  mu_log_sigma_d   = 0.0
-  std_log_sigma_d  = 2.0
-  mu_log_sigma_p   = 0.0
-  std_log_sigma_p  = 2.0
+  std_log_N0       = 0.5
+  mu_log_sigma_d   = -0.5
+  std_log_sigma_d  = 1.0
+  mu_log_sigma_p   = -0.5
+  std_log_sigma_p  = 1.0
   mu_tau           = 15
   q_factor         = 0.1
 
+  epsilon          = 10
+
   params = {}
-  params["blowfly_filename"] = "./problems/blowfly/blowfly.txt"
+  # params["blowfly_filename"] = "./problems/blowfly/blowfly.txt"
+  params["blowfly_filename"] = "./problems/blowfly/blowfly_simul.txt"
   params["mu_log_P"]         = mu_log_P
   params["std_log_P"]        = std_log_P
   params["mu_log_delta"]     = mu_log_delta
@@ -35,6 +40,8 @@ def default_params():
   params["std_log_sigma_p"]  = std_log_sigma_p
   params["mu_tau"]           = mu_tau
   params["q_factor"]         = q_factor
+  
+  params["epsilon"]          = epsilon
   
   return params
   
@@ -61,6 +68,7 @@ class BlowflyProblem( BaseProblem ):
     # a factor of the prior's stddev for the proposal stdev
     self.q_factor = params["q_factor"]
     
+    self.epsilon = params["epsilon"]
     
   # "create" problem or load observations  
   def initialize( self ):
@@ -83,7 +91,16 @@ class BlowflyProblem( BaseProblem ):
   def get_obs_statistics( self ):
     assert self.initialized, "Not initialized..."
     return self.obs_statistics
-      
+  
+  def get_obs_groups( self ):
+    assert self.initialized, "Not initialized..."
+
+    params = {"response_type":"gaussian",
+              "response_params":{"epsilon":self.epsilon }
+             }
+    g = ObservationGroup( np.arange(self.get_nbr_statistics()), self.get_obs_statistics().reshape((1,self.get_nbr_statistics())), params )
+    return [g]
+        
   # run simulation at parameter setting theta, return outputs
   def simulation_function( self, theta ):
     # NB: this is equation (1) in supplementaty information of Wood (2010) ("A better alternative model")
@@ -110,6 +127,9 @@ class BlowflyProblem( BaseProblem ):
       lag = lag + 1
 
     N = np.zeros( lag+burnin+T, dtype=float)
+    #epstTot = np.zeros( burnin+T, dtype=float)
+    #etTot = np.zeros( burnin+T, dtype=float)
+
     #print N0
     N[0] = N0
 
@@ -121,6 +141,11 @@ class BlowflyProblem( BaseProblem ):
 
       eps_t = gamma_rnd( prec_d, prec_d )
       e_t   = gamma_rnd( prec_p, prec_p )
+      #eps_t = 1
+      #e_t = 1
+
+      #epstTot[i] = eps_t
+      #etTot[i] = e_t
 
       #tau_t = max(0,t-int(tau))
       tau_t = t - lag
@@ -135,27 +160,28 @@ class BlowflyProblem( BaseProblem ):
     s = np.zeros( nstats, dtype = float )
     sorted_dif = np.sort( np.diff(outputs))
     sorted = np.sort(outputs)
-    q14 = np.mean( sorted[:N/4]) 
+
+    q14 = np.mean( sorted[:N/4])
     q24 = np.mean( sorted[N/4:N/2])
     q2 = np.mean( sorted[N/4:3*N/4])
-    q34 = np.mean( sorted[N/2:3*N/4]) 
-    q44 = np.mean( sorted[3*N/4:]) 
+    q34 = np.mean( sorted[N/2:3*N/4])
+    q44 = np.mean( sorted[3*N/4:])
     s[0] = np.log(q14/1000.0+1e-12)  #np.log(q1)
     s[1] = np.log(q24/1000.0+1e-12) #np.log(q24) #np.log(q2)
     s[2] = np.log(q34/1000.0+1e-12)
     s[3] = np.log(q44/1000.0+1e-12)
-    
-    q14 = np.mean( sorted_dif[:N/4]) 
+
+    q14 = np.mean( sorted_dif[:N/4])
     q24 = np.mean( sorted_dif[N/4:N/2])
     #q2 = np.mean( sorted_dif[N/4:3*N/4])
-    q34 = np.mean( sorted_dif[N/2:3*N/4]) 
+    q34 = np.mean( sorted_dif[N/2:3*N/4])
     q44 = np.mean( sorted_dif[3*N/4:])
-    
+
     s[4] = q14/1000.0 #np.log(q14+1e-12)  #np.log(q1)
     s[5] = q24/1000.0 #np.log(q24+1e-12) #np.log(q24) #np.log(q2)
     s[6] = q34/1000.0 #np.log(q34+1e-12)
     s[7] = q44/1000.0 #np.log(q44+1e-12)
-    
+
     
     #s[2] = np.log(q4)
     #s[2] = np.mean( sorted_dif[:N/4] )
@@ -165,7 +191,7 @@ class BlowflyProblem( BaseProblem ):
     #s[1] = np.log( np.abs( (s[0] - np.median(outputs))/ 1000.0 ) )
     ss=outputs.std()
     if ss > 0:
-      
+
       x=outputs/ss
       mx,mn = peakdet(x, 0.5 )
       s[8] = float(len(mx))
@@ -176,48 +202,7 @@ class BlowflyProblem( BaseProblem ):
     #s[5] = np.mean( sorted_dif[N/4:] )
     #s[3] = np.log(np.max(outputs+1)/1000.0)
     return s
-    # def blowstats( N ):
-    #       maxlags = 11
-    #   
-    #       lags = 2*np.array( [6,6,6,1,1] )
-    #       pows = np.array( [1,2,3,1,2] )
-    #       n_reg_coeffs = len(lags)
-    #   
-    #       nstats = 2 + maxlags + n_reg_coeffs + 1
-    #       #nstats -= maxlags
-    #       nstats = 4
-    #       s = np.zeros( nstats, dtype = float )
-    #   
-    #       s[0] = N.mean() / 1000.0
-    #       s[1] = (s[0] - np.median(N))/ 1000.0
-    #   
-    #       mx,mn = peakdet(N/N.std(), 1.5 )
-    #       #mx,mn = peakdet( N, 20000.0 )
-    #       #pdb.set_trace()
-    #       s[2] = float(len(mx))
-    #       #lag,ac,dum1,dum2 = pp.acorr( N/1000.0, normed=True, maxlags=maxlags)
-    #   
-    #       #s[2:2+maxlags] = ac[:maxlags]
-    #   
-    #       #reg_coeffs = compute_regression( N/1000.0, lags, pows )
-    #   
-    #       #d1 = np.diff( N/1000.0 )
-    #       #d2 = np.diff( d1 )
-    #   
-    #       #s[2] = np.mean(d1)
-    #       #s[3] = np.mean(d2)
-    #       #pdb.set_trace()
-    #       #s[2:2+5] = reg_coeffs
-    #       #s[2+maxlags:-1] = reg_coeffs
-    #   
-    #       #s[-2] = float( len(pp.find( np.abs(np.diff(np.sign(np.diff(N))))>0)) )
-    #       s[-1] = np.log(np.max(N+1)/1000.0)
-    #       #s[-2] = np.log(np.min(N+1)/1000.0)
-    #       #s[-2] = np.max(np.abs( N[5:]-N[:-5] ))/1000.0
-    #       #print "ADD turning points"
-    #   
-    #       return s
-    return np.array( [np.mean( outputs )] )
+    #return np.array( [np.mean( outputs )] )
     
   # return size of statistics vector for this problem
   def get_nbr_statistics( self ):
@@ -297,9 +282,12 @@ class BlowflyProblem( BaseProblem ):
     linecolor   = "r"
     
     # extract from states
-    thetas = states_object.get_thetas(burnin=burnin)
-    stats  = states_object.get_statistics(burnin=burnin)
-    nsims  = states_object.get_sim_calls(burnin=burnin)
+    thetas = states_object.get_thetas()[burnin:,:]
+    # savemat('/Users/mijung/Dropbox/abcpy/thetas_sl_ep_point01.mat', mdict={'thetas':thetas})
+    # savemat('/Users/mijung/Dropbox/abcpy/simulated_flydata_thetas_sl_ep_point01.mat', mdict={'thetas':thetas})
+    savemat('/Users/mijung/Dropbox/abcpy/simulated_flydata_thetas_sl_ep_point001.mat', mdict={'thetas':thetas})
+    stats  = states_object.get_statistics()[burnin:,:]
+    nsims  = states_object.get_sim_calls()[burnin:]
     
     f=pp.figure()
     for i in range(6):
@@ -323,6 +311,7 @@ class BlowflyProblem( BaseProblem ):
       set_label_fonsize( sp, 6 )
       set_tick_fonsize( sp, 6 )
       set_title_fonsize( sp, 8 )
+    pp.suptitle( "top: posterior, bottom: post pred with true")
     
     f = pp.figure()  
     I = np.random.permutation( len(thetas) )
@@ -330,6 +319,9 @@ class BlowflyProblem( BaseProblem ):
       sp=pp.subplot(4,4,i+1)
       theta = thetas[ I[i],:]
       test_obs = self.simulation_function( theta )
+
+      print theta
+
       test_stats = self.statistics_function( test_obs )
       err = np.sum( np.abs( self.obs_statistics - test_stats ) )
       pp.title( "%0.2f"%( err ))
@@ -339,6 +331,7 @@ class BlowflyProblem( BaseProblem ):
       set_label_fonsize( sp, 6 )
       set_tick_fonsize( sp, 6 )
       set_title_fonsize( sp, 8 )
+    pp.suptitle( "time-series from random draws of posterior")
       
 if __name__ == "__main__":
   pp.close("all")
@@ -369,6 +362,7 @@ if __name__ == "__main__":
   
   theta_test = theta
   b = BlowflyProblem( params, force_init = True )
+
   test_obs = b.simulation_function( theta_test )
   pp.figure(1)
   pp.clf()

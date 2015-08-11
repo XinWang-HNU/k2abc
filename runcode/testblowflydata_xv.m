@@ -147,11 +147,14 @@ load(strcat('blowfly_simuldata: ', num2str(whichmethod), '_thLengthScale', num2s
 
 params_ours = results.post_mean(minIdx2,:)
 % params_ours = results.post_mean(1, :);
+<<<<<<< HEAD
 
 err = mean(abs(params_ours - true_params)./true_params)
 
+=======
+%%
+>>>>>>> cbe44ad9f5a1768e2a52aaf1a43ed0cb4a34994b
 simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
-
 subplot(212); plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-'); title('simulated data');
 set(gca, 'ylim', [0 max(simuldat_ours/1000) + 1])
 

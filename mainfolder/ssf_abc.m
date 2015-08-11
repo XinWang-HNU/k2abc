@@ -77,9 +77,9 @@ dists = zeros(num_latent_draws, 1);
 for j=1:num_latent_draws
     
     % visualization of sample number
-    if rem(j, 100)==0 % every 100th number will be shown 
-        [j num_latent_draws]
-    end
+%     if rem(j, 100)==0 % every 100th number will be shown 
+%         [j num_latent_draws]
+%     end
     
     latent_j = latent_samples(:, j);
     Pseudo_j = likelihood_func(latent_j, num_pseudo_data);

@@ -15,6 +15,7 @@ function results = run_iteration_blowflydata(whichmethod, opts, iter)
 %% (1) generate observations
 
 % op. All options are described in each subfunction below.
+op = opts;
 op.seed = iter;
 
 op.likelihood_func = @ gendata_pop_dyn_eqn; 
@@ -67,11 +68,11 @@ elseif strcmp(num2str(whichmethod),'rejection_abc')
     op.stat_gen_func = @(data) [mean(data, 2) var(data,0,2)];
     op.stat_dist_func = @(stat1, stat2) norm(stat1 - stat2);
     op.threshold_func = @(dists, epsilons) bsxfun(@lt, dists(:), epsilons(:)');
-    stat_scale = mean(abs(op.stat_gen_func(dat.samps)));
+    stat_scale = mean(abs(op.stat_gen_func(op.yobs)));
 %     op.epsilon_list = logspace(-3, 0, 9);
     op.epsilon_list = logspace(-1.8, 0, 9)*stat_scale;
     
-    [R, op] = ssb_abc(dat.samps, op);
+    [R, op] = ssb_abc(op.yobs, op);
     
     cols = length(opts.true_theta);
     num_eps = length(op.epsilon_list);
@@ -100,10 +101,10 @@ elseif strcmp(num2str(whichmethod),'ssb_abc')
     op.stat_gen_func = @(data) [mean(data, 2) var(data,0,2)];
     op.stat_dist_func = @(stat1, stat2) norm(stat1 - stat2);
     op.threshold_func = @(dists, epsilons) exp(-bsxfun(@times, dists(:), 1./epsilons(:)'));
-    stat_scale = mean(abs(op.stat_gen_func(dat.samps)));
+    stat_scale = mean(abs(op.stat_gen_func(op.yobs)));
     op.epsilon_list = logspace(-2, 0, 9)*stat_scale;
     
-    [R, op] = ssb_abc(dat.samps, op);
+    [R, op] = ssb_abc(op.yobs, op);
     
     cols = length(opts.true_theta);
     num_eps = length(op.epsilon_list);

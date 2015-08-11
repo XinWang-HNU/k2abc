@@ -9,7 +9,6 @@ from abcpy.states.state_recorder      import BaseStateRecorder as Recorder
 import pylab as pp
 import numpy as np
 
-# Wittawat added this line
 problem_params = load_default_params()
 problem = Problem( problem_params, force_init = True )
 
