@@ -1,5 +1,5 @@
 function [mm] = mmd(X, Y, ker)
-% MMD compute maximum mean discrepancy
+% MMD compute unbiased maximum mean discrepancy estimator.
 %   - X : d x nx matrix of X samples 
 %   - Y : d x ny matrix of Y samples
 %
@@ -31,9 +31,14 @@ Kxy = ker.eval(X, Y);
 xy = mean(Kxy(:));
 clear Kxy
 
-% unbiased mmd can be negative ? sqrt(negative) gives an imaginary number ....
+% unbiased mmd can be negative.  
 %
-mm = real(sqrt(xx - 2*xy + yy));
+mm2 = xx - 2*xy + yy;
+if mm2 < 0
+    mm = 0;
+else
+    mm = sqrt(mm2);
+end
 
 
 end
