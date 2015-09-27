@@ -36,6 +36,7 @@ clear Kxy
 mm2 = xx - 2*xy + yy;
 if mm2 < 0
     mm = 0;
+    %display(sprintf('mmd. negative mm2: %.3f', mm2));
 else
     mm = sqrt(mm2);
 end

@@ -49,10 +49,12 @@ xy = mean(Ksl);
 % unbiased mmd.
 mm2 = xx - 2*xy + yy;
 if mm2 < 0
-    mm = 0;
+   mm = 0;
+   display(sprintf('mmd_lin. negative mm2: %.3f', mm2));
 else
-    mm = sqrt(mm2);
+   mm = sqrt(mm2);
 end
+%mm = abs(sqrt(mm2));
 
 end
 
