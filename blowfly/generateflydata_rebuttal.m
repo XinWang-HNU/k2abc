@@ -1,4 +1,4 @@
-%% generate data from the fly dynamics equation for making our rebuttal "stronger"!
+%% generate data from the fly dynamics equation for making our NIPS2015 rebuttal "stronger"!
 % mijung wrote on 
 % The main purpose of this is to test ABC algorithms when the true generating 
 % parameter is known. 
