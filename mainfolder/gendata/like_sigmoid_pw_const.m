@@ -4,7 +4,7 @@ function [ samples, probs ] = like_sigmoid_pw_const( params, n )
 %to a sigmoid function. The normalized sigmoid values are used as probabilities.
 %
 % The above semantic is used only when at least one dimension in params is < 0.
-% If not, not sigmoid transform is done.
+% If not, no sigmoid transform is done.
 
 assert(isnumeric(params));
 

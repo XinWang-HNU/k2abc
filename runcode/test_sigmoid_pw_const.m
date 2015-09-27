@@ -1,4 +1,4 @@
-% Test our kernel ABC on the sigmoid piecewise constant likelihood
+% Test our K2ABC on the sigmoid piecewise constant likelihood
 %@author Wittawat
 seed = 4;
 oldRng = rng();

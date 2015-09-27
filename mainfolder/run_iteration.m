@@ -59,7 +59,6 @@ if strcmp(num2str(whichmethod),'ssf_kernel_abc')
     for ei = 1:num_eps    
         post_mean(ei,:) = R.latent_samples*R.norm_weights(:, ei) ;
         post_var(ei,:) = (R.latent_samples.^2)*R.norm_weights(:, ei) - (post_mean(ei,:).^2)'; 
-%         [~, prob_post_mean(ei,:)] = like_sigmoid_pw_const(post_mean(ei,:), 1); 
     end
     
 elseif strcmp(num2str(whichmethod),'rejection_abc')
@@ -89,7 +88,6 @@ elseif strcmp(num2str(whichmethod),'rejection_abc')
         if accpt_rate(ei)>0
             post_mean(ei, :) = mean(R.latent_samples(:, idx_accpt_samps), 2) ;
             post_var(ei, :) = mean(R.latent_samples(:, idx_accpt_samps).^2, 2) - (post_mean(ei, :).^2)';
-%             [~, prob_post_mean(ei,:)] = like_sigmoid_pw_const(post_mean(ei,:), 1);
         end
         
     end
@@ -116,7 +114,6 @@ elseif strcmp(num2str(whichmethod),'ssb_abc')
     for ei = 1:num_eps
         post_mean(ei,:) = R.latent_samples*R.unnorm_weights(:, ei)/sum(R.unnorm_weights(:, ei)) ;
         post_var(ei,:) = (R.latent_samples.^2)*R.unnorm_weights(:, ei)/sum(R.unnorm_weights(:, ei)) - (post_mean(ei,:).^2)';
-%         [~, prob_post_mean(ei,:)] = like_sigmoid_pw_const(post_mean(ei,:), 1);
     end
         
 elseif strcmp(num2str(whichmethod),'ssf_abc')
