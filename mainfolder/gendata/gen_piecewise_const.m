@@ -1,9 +1,9 @@
-% generate data from a piecewise sigmoid likelihood function
-
-function dat = gen_sigmoid_pw_const(params, n, seed)
-
+function  dat = gen_piecewise_const( params, n, seed )
+%GEN_PIECEWISE_CONST Generate dataset drawn from piecewise constant distribution 
+%(equivalently mixture of 5 uniform distributions).
+%
 % inputs
-%         params: theta
+%         params: theta, a probability vector.
 %         n: number of observations
 %         seed: 
 %
@@ -20,10 +20,15 @@ oldRng = rng();
 rng(seed);
 
 % generate data
-[ samples, probs ] = like_sigmoid_pw_const( params, n );
+probs = params;
+
+[ samples ] = like_piecewise_const( probs, n );
 
 % output
 dat.samps = samples;
 dat.probs = probs;
 
 rng(oldRng);
+
+end
+

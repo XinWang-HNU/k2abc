@@ -14,12 +14,10 @@ function results = run_iteration(whichmethod, opts, iter)
 % (3) seed number
 
 %% (1) generate observations
+op.likelihood_func = @like_piecewise_const;
+seed = iter;
+dat = gen_piecewise_const(opts.true_theta, opts.num_obs, seed);
 
-if strcmp(num2str(opts.likelihood_func),'like_sigmoid_pw_const')
-    op = struct();
-    op.likelihood_func = @like_sigmoid_pw_const;
-    dat = gen_sigmoid_pw_const(opts.true_theta, opts.num_obs, iter);
-end
 % figure(2);
 % hist(dat.samps)
 

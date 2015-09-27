@@ -1,4 +1,4 @@
-% to generate Figure 1 using a piece constant sigmoid likelihood with three
+% to generate Figure 1 using a piece constant likelihood with three
 % dimensional theta.
 
 % mijung wrote on jan 21,2015
@@ -33,7 +33,7 @@ sig = 1./(1+exp(-theta_before_trs));
 norm_sig = sig/sum(sig);
 true_theta = norm_sig;
 
-opts.likelihood_func = 'like_sigmoid_pw_const';
+opts.likelihood_func = @like_piecewise_const;
 opts.true_theta =  true_theta;
 opts.num_obs = 400;
 opts.num_theta_samps = 1000;

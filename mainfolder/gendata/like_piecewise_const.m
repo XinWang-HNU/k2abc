@@ -1,5 +1,6 @@
 function [ samples ] = like_piecewise_const( probs, n )
 %LIKE_PIECEWISE_CONST Generate n samples from a piecewise constant distribution 
+%(equivalently a mixture of uniform distributions)
 %defined on an interval [0, n]. The height of the bin [i-1, i] is specified by 
 %probs(i). Require sum(probs) = 1.
 %
