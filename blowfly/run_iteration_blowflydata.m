@@ -24,7 +24,7 @@ op.num_latent_draws = opts.num_theta_samps;
 op.num_pseudo_data = opts.num_pseudodata_samps;
 op.dim_theta = opts.dim_theta; 
 
-if strcmp(num2str(whichmethod),'ssf_kernel_abc')
+if ismember(whichmethod, {'ssf_kernel_abc', 'k2abc' })
     
     %% (1) ssf_kernel_abc
     
@@ -61,6 +61,32 @@ if strcmp(num2str(whichmethod),'ssf_kernel_abc')
 
     end
     
+elseif strcmp(whichmethod, 'k2abc_lin')
+    % K2ABC with linear MMD
+    %
+    width2 = opts.width2; 
+    op.mmd_kernel = KGaussian(width2);
+    
+    if size(opts.epsilon_list,1) ~=0
+        op.epsilon_list = opts.epsilon_list;
+    else
+        op.epsilon_list = logspace(-5, 1, 10);
+    end
+    
+    [R, op] = k2abc_lin(opts.yobs, op);
+    
+    cols = op.dim_theta;
+    num_eps = length(op.epsilon_list);
+    post_mean = zeros(num_eps, cols);
+    post_var = zeros(num_eps, cols);
+    
+    for ei = 1:num_eps  
+        latent_samples = R.latent_samples; 
+        post_mean(ei,:) = latent_samples*R.norm_weights(:, ei) ;
+        post_var(ei,:) = (latent_samples.^2)*R.norm_weights(:, ei) - (post_mean(ei,:).^2)'; 
+
+    end
+
 elseif strcmp(num2str(whichmethod),'rejection_abc')
     
     %% (2) rejection_abc

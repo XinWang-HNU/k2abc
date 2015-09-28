@@ -1,5 +1,5 @@
-% to generate Figure 1 using a piece constant likelihood with three
-% dimensional theta.
+% to generate Figure 1 using a piece constant likelihood (mixture of uniforms)
+% with three dimensional theta.
 
 % mijung wrote on jan 21,2015
 
@@ -22,7 +22,8 @@ clc;
 
 maxiter = 1;
 
-whichmethod = 'ssf_kernel_abc';
+whichmethod = 'k2abc'; % k2abc = ssf_kernel_abc
+%whichmethod = 'k2abc_lin';
 % whichmethod = 'rejection_abc';
 % whichmethod = 'ssb_abc';
 % whichmethod = 'ssf_abc';
@@ -104,6 +105,7 @@ dat_sim = like_piecewise_const(bestmean, opts.num_obs);
 
 % ours (4,5,6), rejction (7 8 9), 
 if strcmp(num2str(whichmethod),'ssf_kernel_abc')
+%if strcmp(num2str(whichmethod),'k2abc_lin')
     idx_strt = 2;
 elseif strcmp(num2str(whichmethod),'rejection_abc')
     idx_strt = 3;

@@ -19,6 +19,7 @@ n = length(flydata);
 %% test ssf-abc
 
 whichmethod =  'ssf_kernel_abc';
+%whichmethod =  'k2abc_lin';
 
 opts.num_theta_samps = 1000;
 opts.dim_theta = 6; % dim(theta)

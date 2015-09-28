@@ -34,9 +34,8 @@ op.proposal_dist = @(n) sample_from_dirichlet(alpha,n);
 op.num_latent_draws = opts.num_theta_samps;
 op.num_pseudo_data = opts.num_pseudodata_samps;
 
-if strcmp(num2str(whichmethod),'ssf_kernel_abc')
-    
-    %% (1) ssf_kernel_abc
+if ismember(whichmethod, {'ssf_kernel_abc', 'k2abc' })
+    %% (1) quadratic k2abc 
     
     % width squared.
 %     width2 = meddistance(dat.samps)^2/2;
@@ -59,6 +58,27 @@ if strcmp(num2str(whichmethod),'ssf_kernel_abc')
         post_var(ei,:) = (R.latent_samples.^2)*R.norm_weights(:, ei) - (post_mean(ei,:).^2)'; 
     end
     
+elseif strcmp(whichmethod, 'k2abc_lin')
+    % K2ABC with linear MMD
+     width2 = meddistance(dat.samps)/32;
+    op.mmd_kernel = KGaussian(width2);
+    op.mmd_exponent = 2;
+    
+    op.epsilon_list = logspace(-3, 0, 9);
+    
+    [R, op] = k2abc_lin(dat.samps, op);
+    
+    cols = length(opts.true_theta);
+    num_eps = length(op.epsilon_list);
+    post_mean = zeros(num_eps, cols);
+    post_var = zeros(num_eps, cols);
+%     prob_post_mean = zeros(num_eps, cols);
+    
+    for ei = 1:num_eps    
+        post_mean(ei,:) = R.latent_samples*R.norm_weights(:, ei) ;
+        post_var(ei,:) = (R.latent_samples.^2)*R.norm_weights(:, ei) - (post_mean(ei,:).^2)'; 
+    end
+
 elseif strcmp(num2str(whichmethod),'rejection_abc')
     
     %% (2) rejection_abc
