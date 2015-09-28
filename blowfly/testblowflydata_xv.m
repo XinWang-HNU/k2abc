@@ -18,8 +18,8 @@ n = length(flydata);
 
 %% test ssf-abc
 
-whichmethod =  'ssf_kernel_abc';
-%whichmethod =  'k2abc_lin';
+%whichmethod =  'ssf_kernel_abc';
+whichmethod =  'k2abc_lin';
 
 opts.num_theta_samps = 1000;
 opts.dim_theta = 6; % dim(theta)
@@ -70,7 +70,7 @@ end
 
 avg_loss_mat = zeros(howmanyscalelength, howmanyepsilon);
 
-whichmethod =  'ssf_kernel_abc';
+%whichmethod =  'ssf_kernel_abc';
 opts.likelihood_func = @ gendata_pop_dyn_eqn;
 opts.num_rep = 100;
 % 

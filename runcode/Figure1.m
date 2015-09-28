@@ -22,8 +22,8 @@ clc;
 
 maxiter = 1;
 
-whichmethod = 'k2abc'; % k2abc = ssf_kernel_abc
-%whichmethod = 'k2abc_lin';
+%whichmethod = 'k2abc'; % k2abc = ssf_kernel_abc
+whichmethod = 'k2abc_lin';
 % whichmethod = 'rejection_abc';
 % whichmethod = 'ssb_abc';
 % whichmethod = 'ssf_abc';
@@ -104,8 +104,8 @@ bestmean = est_probs_mat(whichepsilonisthebest, :);
 dat_sim = like_piecewise_const(bestmean, opts.num_obs); 
 
 % ours (4,5,6), rejction (7 8 9), 
-if strcmp(num2str(whichmethod),'ssf_kernel_abc')
-%if strcmp(num2str(whichmethod),'k2abc_lin')
+%if strcmp(num2str(whichmethod),'ssf_kernel_abc')
+if strcmp(num2str(whichmethod),'k2abc_lin')
     idx_strt = 2;
 elseif strcmp(num2str(whichmethod),'rejection_abc')
     idx_strt = 3;
