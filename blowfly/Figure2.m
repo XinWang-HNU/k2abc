@@ -292,7 +292,7 @@ load flydata.mat
 n = length(flydata);
 
 num_rept_mse = 100;
-msemat = zeros(num_rept_mse, 10);
+msemat = zeros(num_rept_mse, 11);
 s = ss_for_blowflydata(flydata);
 mse = @(a) norm(s-a);
     
@@ -338,6 +338,11 @@ for i=1:num_rept_mse
     simuldat_ours = gendata_pop_dyn_eqn(params_ours, n);
     plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-');
     set(gca, 'ylim', [0 12]); ylabel('k abc');
+    
+    %% ours (linear mmd)
+    
+    load  opt_k2abc_lin;
+    simuldat_ours_lin = gendata_pop_dyn_eqn(opt_k2abc_lin, n);
 
     %% indirect_score_abc
     
@@ -364,6 +369,7 @@ for i=1:num_rept_mse
     
     %% compute chosen summary statistics
     s_ours =  ss_for_blowflydata(simuldat_ours);
+    s_ours_lin =  ss_for_blowflydata(simuldat_ours_lin);
     s_kabc = ss_for_blowflydata(simuldat_kabc);
     s_sl = ss_for_blowflydata(simuldat_sl);
     s_is = ss_for_blowflydata(simuldat_is);
@@ -374,7 +380,7 @@ for i=1:num_rept_mse
     s_weighted_sa_q = ss_for_blowflydata(simuldat_weighted_sa_q);
     s_weighted_sa_woodss = ss_for_blowflydata(simuldat_weighted_sa_woodss);
 
-    msemat(i,:) = [mse(s_ours) mse(s_sl) mse(s_reject_sa_woodss)  mse(s_is) mse(s_reject_sa)  mse(s_reject_sa_q) mse(s_weighted_sa_woodss) mse(s_weighted_sa)  mse(s_weighted_sa_q) mse(s_kabc) ];
+    msemat(i,:) = [mse(s_ours) mse(s_ours_lin)  mse(s_sl) mse(s_reject_sa_woodss)  mse(s_is) mse(s_reject_sa)  mse(s_reject_sa_q) mse(s_weighted_sa_woodss) mse(s_weighted_sa)  mse(s_weighted_sa_q) mse(s_kabc) ];
     
 end
 
@@ -384,24 +390,24 @@ std(msemat)
 %%
 % boxplot(msemat, {'k2', 'sl', 'sa-woods', 'aux', 'sa', 'saq', 'k'}); 
 
-boxplot(msemat, {'k2', 'sl', 'sa-woods', 'aux', 'sa', 'saq', 'sa-woods-w', 'sa-w', 'saq-w','k'}); 
+boxplot(msemat, {'k2', 'k2lin',  'sl', 'sa-woods', 'aux', 'sa', 'saq', 'sa-woods-w', 'sa-w', 'saq-w','k'}); 
 % set(gca, 'xticklabel',method_names);
 % legend('ours', 'synthetic likelihood abc', 'kabc')
 
 %% how about showing trajectories of y given 
 
-load flydata.mat
-n = length(flydata);
-
-subplot(311);
-plot(1:180, flydata/1000, 'k', 1:180, gendata_pop_dyn_eqn(sample_from_prior_blowflydata(1), n)./1000,  'm');
-set(gca, 'ylim', [0 12]);
-
-subplot(312);
-plot(1:180, flydata/1000, 'k', 1:180, gendata_pop_dyn_eqn(sample_from_prior_blowflydata(1), n)./1000,  'b');
-set(gca, 'ylim', [0 12]);
-
-subplot(313);
-plot(1:180, flydata/1000, 'k', 1:180, gendata_pop_dyn_eqn(sample_from_prior_blowflydata(1), n)./1000,  'r');
-set(gca, 'ylim', [0 12]);
+% load flydata.mat
+% n = length(flydata);
+% 
+% subplot(311);
+% plot(1:180, flydata/1000, 'k', 1:180, gendata_pop_dyn_eqn(sample_from_prior_blowflydata(1), n)./1000,  'm');
+% set(gca, 'ylim', [0 12]);
+% 
+% subplot(312);
+% plot(1:180, flydata/1000, 'k', 1:180, gendata_pop_dyn_eqn(sample_from_prior_blowflydata(1), n)./1000,  'b');
+% set(gca, 'ylim', [0 12]);
+% 
+% subplot(313);
+% plot(1:180, flydata/1000, 'k', 1:180, gendata_pop_dyn_eqn(sample_from_prior_blowflydata(1), n)./1000,  'r');
+% set(gca, 'ylim', [0 12]);
 
