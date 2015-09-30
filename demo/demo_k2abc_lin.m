@@ -1,4 +1,4 @@
-function [ ] = demo_k2abc_lin( )
+%function [ ] = demo_k2abc_lin( )
 %DEMO_K2ABC_LIN Demonstrate how to use K2ABC with linear MMD. Also compare 
 %the result to the quadratic MMD version.
 %
@@ -18,7 +18,7 @@ obs = likelihood_func(true_theta, num_obs );
 
 % options. All options are described in ssf_kernel_abc.
 op = struct();
-op.seed = seed;
+op.seed = seed + 1;
 % A proposal distribution for drawing the latent variables of interest.
 % func_handle : n -> (d' x n) where n is the number of samples to draw.
 % Return a d' x n matrix.
@@ -44,7 +44,7 @@ op.mmd_exponent = 2;
 %[~, Ilin] = sort(Rlin.latent_samples);
 % different seed just so that the sequence of proposal is different. Easy to see 
 % in the plot.
-op.seed = seed+1;
+op.seed = op.seed+2;
 [R, op] = k2abc(obs, op);
 %[~, I] = sort(R.latent_samples);
 % Rlin contains latent samples and their weights for each epsilon.
@@ -88,5 +88,5 @@ rng(oldRng);
 
 
 
-end
+%end
 

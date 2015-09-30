@@ -14,6 +14,8 @@ function [ results, op ] = k2abc_lin( Obs, op )
 %   - op : option struct.
 %
 
+assert(isnumeric(Obs));
+
 % kernel function for computing MMD between Obs and the drawn pseudo data.
 % Default to a Gaussian kernel with median heuristic.
 op.mmd_kernel = myProcessOptions(op, 'mmd_kernel', KGaussian(meddistance(Obs)^2)); 

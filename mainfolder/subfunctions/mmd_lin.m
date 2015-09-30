@@ -43,6 +43,14 @@ M = repmat( (1:s)', 1, ceil(l/s) );
 S = S(:, M(1:l));
 % S will now have the same length as L with repeated observations.
 assert(size(S, 2) == size(L, 2));
+% deterministic shuffle of Obs. This will break dependency when we apply this method to 
+% non-i.i.d. data. This shuffling should not have a negative effect for i.i.d.
+% case.
+oldRng = rng();
+rng(129280);
+S = S(:, randperm(size(S, 2)));
+rng(oldRng);
+
 Ksl = ker.pairEval(S, L);
 xy = mean(Ksl);
 
