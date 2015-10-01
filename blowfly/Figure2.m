@@ -3,6 +3,10 @@ clear all;
 clc;
 % clf;
 
+oldRng = rng();
+seed = 1;
+rng(seed);
+
 load flydata.mat
 n = length(flydata);
 
@@ -393,6 +397,10 @@ std(msemat)
 boxplot(msemat, {'k2', 'k2lin',  'sl', 'sa-woods', 'aux', 'sa', 'saq', 'sa-woods-w', 'sa-w', 'saq-w','k'}); 
 % set(gca, 'xticklabel',method_names);
 % legend('ours', 'synthetic likelihood abc', 'kabc')
+
+% change seed back
+rng(oldRng);
+
 
 %% how about showing trajectories of y given 
 
