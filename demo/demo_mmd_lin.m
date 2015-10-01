@@ -42,9 +42,9 @@ hold on
 plot(means, MMDL, 'o-b', 'linewidth', 2);
 plot(means, MMDF, 'x-r', 'linewidth', 2);
 set(gca, 'fontsize', 20);
-title('Linear MMD vs full MMD. X \sim N(0, 1), Y \sim N(mean, 1).');
+title('Linear MMD^2 vs full MMD^2. X \sim N(0, 1), Y \sim N(mean, 1).');
 xlabel('mean of Y');
-ylabel('MMD(X, Y)');
+ylabel('MMD(X, Y)^2');
 legend('Linear MMD', 'Full MMD');
 grid on
 hold off
@@ -79,9 +79,9 @@ hold on
 plot(stds, MMDL, 'o-b', 'linewidth', 2);
 plot(stds, MMDF, 'x-r', 'linewidth', 2);
 set(gca, 'fontsize', 20);
-title('Linear MMD vs full MMD. X \sim N(0, 1), Y \sim N(0, sd^2).');
+title('Linear MMD^2 vs full MMD^2. X \sim N(0, 1), Y \sim N(0, sd^2).');
 xlabel('sd of Y');
-ylabel('MMD(X, Y)');
+ylabel('MMD(X, Y)^2');
 legend('Linear MMD', 'Full MMD');
 grid on
 hold off

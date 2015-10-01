@@ -1,5 +1,5 @@
-function [mm] = mmd(X, Y, ker)
-% MMD compute unbiased maximum mean discrepancy estimator.
+function [mm2] = mmd(X, Y, ker)
+% MMD compute unbiased estimator of MMD^2 (maximum mean discrepancy).
 %   - X : d x nx matrix of X samples 
 %   - Y : d x ny matrix of Y samples
 %
@@ -34,12 +34,12 @@ clear Kxy
 % unbiased mmd can be negative.  
 %
 mm2 = xx - 2*xy + yy;
-if mm2 < 0
-    mm = 0;
-    %display(sprintf('mmd. negative mm2: %.3f', mm2));
-else
-    mm = sqrt(mm2);
-end
+%if mm2 < 0
+%    mm = 0;
+%    %display(sprintf('mmd. negative mm2: %.3f', mm2));
+%else
+%    mm = sqrt(mm2);
+%end
 
 
 end

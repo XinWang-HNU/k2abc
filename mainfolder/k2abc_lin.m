@@ -21,12 +21,8 @@ assert(isnumeric(Obs));
 op.mmd_kernel = myProcessOptions(op, 'mmd_kernel', KGaussian(meddistance(Obs)^2)); 
 %mmd_kernel = op.mmd_kernel;
 
-% The power to which MMD is raised. Default to 2.
-op.mmd_exponent = myProcessOptions(op, 'mmd_exponent', 2);
-%mmd_exponent = op.mmd_exponent;
-assert(op.mmd_exponent > 0 && op.mmd_exponent <= 2, 'mmd_exponent must be in (0, 2].')
 
-op.pseudo_data_measure = @(data1, data2)mmd_lin(data1, data2, op.mmd_kernel)^op.mmd_exponent;
+op.pseudo_data_measure = @(data1, data2)mmd_lin(data1, data2, op.mmd_kernel);
 op.threshold_func = @(dists, epsilons) exp(-dists(:)*(1./epsilons(:)'));
 [results, op] = ssf_abc(Obs, op);
 

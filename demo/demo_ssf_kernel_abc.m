@@ -34,7 +34,6 @@ op.num_pseudo_data = 300;
 % width squared.
 width2 = meddistance(obs)^2;
 op.mmd_kernel = KGaussian(width2);
-op.mmd_exponent = 2;
 
 [R, op] = ssf_kernel_abc(obs, op);
 % R contains latent samples and their weights for each epsilon.

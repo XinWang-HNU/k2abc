@@ -34,7 +34,6 @@ if ismember(whichmethod, {'ssf_kernel_abc', 'k2abc' })
 %      width2 = meddistance(opts.yobs)^2;
     width2 = opts.width2; 
     op.mmd_kernel = KGaussian(width2);
-    op.mmd_exponent = 2;
     
     if size(opts.epsilon_list,1) ~=0
         op.epsilon_list = opts.epsilon_list;

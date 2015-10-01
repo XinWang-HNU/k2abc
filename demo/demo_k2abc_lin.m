@@ -38,7 +38,6 @@ op.num_pseudo_data = 300;
 % width squared.
 width2 = meddistance(obs)^2;
 op.mmd_kernel = KGaussian(width2);
-op.mmd_exponent = 2;
 
 [Rlin, op] = k2abc_lin(obs, op);
 %[~, Ilin] = sort(Rlin.latent_samples);

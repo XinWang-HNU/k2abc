@@ -41,7 +41,6 @@ if ismember(whichmethod, {'ssf_kernel_abc', 'k2abc' })
 %     width2 = meddistance(dat.samps)^2/2;
      width2 = meddistance(dat.samps)/32;
     op.mmd_kernel = KGaussian(width2);
-    op.mmd_exponent = 2;
     
     op.epsilon_list = logspace(-3, 0, 9);
     
@@ -62,7 +61,6 @@ elseif strcmp(whichmethod, 'k2abc_lin')
     % K2ABC with linear MMD
      width2 = meddistance(dat.samps)/32;
     op.mmd_kernel = KGaussian(width2);
-    op.mmd_exponent = 2;
     
     op.epsilon_list = logspace(-3, 0, 9);
     

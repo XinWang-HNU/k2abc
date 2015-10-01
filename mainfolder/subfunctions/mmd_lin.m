@@ -1,5 +1,5 @@
-function [ mm ] = mmd_lin( X, Y, ker )
-% MMD_LIN Linear unbiased MMD estimator. Complexity = O(max(nx, ny))
+function [ mm2 ] = mmd_lin( X, Y, ker )
+% MMD_LIN Linear unbiased MMD^2 estimator. Complexity = O(max(nx, ny))
 %   - X : d x nx matrix of X samples 
 %   - Y : d x ny matrix of Y samples
 %
@@ -43,25 +43,27 @@ M = repmat( (1:s)', 1, ceil(l/s) );
 S = S(:, M(1:l));
 % S will now have the same length as L with repeated observations.
 assert(size(S, 2) == size(L, 2));
+
 % deterministic shuffle of Obs. This will break dependency when we apply this method to 
 % non-i.i.d. data. This shuffling should not have a negative effect for i.i.d.
 % case.
-oldRng = rng();
-rng(129280);
-S = S(:, randperm(size(S, 2)));
-rng(oldRng);
+%oldRng = rng();
+%rng(129280);
+%S = S(:, randperm(size(S, 2)));
+%rng(oldRng);
 
 Ksl = ker.pairEval(S, L);
 xy = mean(Ksl);
 
 % unbiased mmd.
 mm2 = xx - 2*xy + yy;
-if mm2 < 0
-   mm = 0;
-   %display(sprintf('mmd_lin. negative mm2: %.3f', mm2));
-else
-   mm = sqrt(mm2);
-end
+
+%if mm2 < 0
+%   mm = 0;
+%   %display(sprintf('mmd_lin. negative mm2: %.3f', mm2));
+%else
+%   mm = sqrt(mm2);
+%end
 %mm = abs(sqrt(mm2));
 
 end
