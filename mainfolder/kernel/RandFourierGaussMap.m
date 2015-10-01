@@ -55,10 +55,12 @@ classdef RandFourierGaussMap < FeatureMap & PrimitiveSerializable
         end
 
         function M=genFeaturesDynamic(this, X)
-            assert(isa(X, 'DistArray') || isa(X, 'TensorInstances'));
-            g=this.getGenerator(X);
-            n=X.count();
-            M=DefaultDynamicMatrix(g, this.numFeatures, n);
+            error('This function is not necessary for ABC.');
+
+            %assert(isa(X, 'DistArray') || isa(X, 'TensorInstances'));
+            %g=this.getGenerator(X);
+            %n=X.count();
+            %M=DefaultDynamicMatrix(g, this.numFeatures, n);
         end
 
         function fm=cloneParams(this, numFeatures)
