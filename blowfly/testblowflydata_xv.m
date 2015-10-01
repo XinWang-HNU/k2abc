@@ -1,4 +1,4 @@
-% cross-validation for testblowdata
+% compute an error on the 25% held-out blowfly data
 % this code is what I used for Fig 2
 % mijung wrote and tested on jan 27, 2015
 
@@ -16,13 +16,11 @@ rng(seed);
 
 n = length(flydata);
 
-%% test ssf-abc
-
 opts.num_theta_samps = 1000;
 opts.dim_theta = 6; % dim(theta)
 opts.yobs = flydata';
 
-% whichmethod = 'ssf_kernel_abc';
+%whichmethod = 'ssf_kernel_abc';
 whichmethod = 'k2abc_lin';
 
 if strcmp(whichmethod, 'ssf_kernel_abc')
@@ -35,11 +33,15 @@ if strcmp(whichmethod, 'ssf_kernel_abc')
     
 elseif strcmp(whichmethod, 'k2abc_lin')
     
-    howmanyscalelength = 8;
-    width2mat = meddistance(opts.yobs)^2.*2.^linspace(-8, -1, howmanyscalelength);
+    howmanyscalelength = 10;
+    %width2mat = meddistance(opts.yobs)^2.*2.^linspace(-8, -1, howmanyscalelength);
     
-    howmanyepsilon = 8;
-    opts.epsilon_list = logspace(-6, 0, howmanyepsilon);
+    med_factors =  2.^linspace(-9, 2, howmanyscalelength);
+    width2mat = (meddistance(opts.yobs)^2)*med_factors;
+    %howmanyscalelength = length(med_factors);
+    
+    howmanyepsilon = 10;
+    opts.epsilon_list = logspace(-6, -1, howmanyepsilon);
     
 end
 
@@ -47,7 +49,6 @@ end
 maxiter = length(width2mat);
 
 % split data into training and test data
-cv_fold = 1;
 last_idx_trn = ceil(n*3/4);
 idx_trn = [ones(1, last_idx_trn), zeros(1, n - last_idx_trn)];
 assert(length(idx_trn) == n);
@@ -81,7 +82,6 @@ avg_loss_mat = zeros(howmanyscalelength, howmanyepsilon);
 opts.likelihood_func = @ gendata_pop_dyn_eqn;
 opts.num_rep = 100;
 %
-% % for fi=1:cv_fold
 idx_tst = [zeros(1, n*3/4) ones(1, n/4)];
 testdat = flydata(n*3/4+1:n)';
 %
@@ -151,7 +151,6 @@ width_opt = width2mat(minIdx1);
 opts.epsilon_list = epsilon_opt;
 
 opts.num_obs = n;
-opts.num_theta_samps = 1000;
 opts.num_pseudodata_samps = n*4;
 opts.dim_theta = 6; % dim(theta)
 opts.yobs = flydata';

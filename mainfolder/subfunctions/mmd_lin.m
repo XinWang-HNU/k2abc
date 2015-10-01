@@ -48,7 +48,7 @@ assert(size(S, 2) == size(L, 2));
 % non-i.i.d. data. This shuffling should not have a negative effect for i.i.d.
 % case.
 %oldRng = rng();
-%rng(129280);
+%rng(19280);
 %S = S(:, randperm(size(S, 2)));
 %rng(oldRng);
 
@@ -59,12 +59,9 @@ xy = mean(Ksl);
 mm2 = xx - 2*xy + yy;
 
 %if mm2 < 0
-%   mm = 0;
-%   %display(sprintf('mmd_lin. negative mm2: %.3f', mm2));
-%else
-%   mm = sqrt(mm2);
+% mm2 = 0;
+% %display(sprintf('mmd_lin. negative mm2: %.3f', mm2));
 %end
-%mm = abs(sqrt(mm2));
 
 end
 

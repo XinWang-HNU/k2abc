@@ -15,10 +15,6 @@ classdef Kernel < handle
         % KerXXX(param1, param2).
         s=shortSummary(this);
 
-        % Return a set of parameters used in this kernel in a cell array.
-        % If the kernel does not have any parameter, return an empty cell
-        % array, {}.
-        %Param = getParam(this);
         
     end
     
@@ -29,6 +25,15 @@ classdef Kernel < handle
             Kmat = this.eval(data, data);
         end
 
+        % Get a random feature map as an object of type FeatureMap from which 
+        % random feature approximation of the kernel can be computed. 
+        %  - D is a positive integer representing the number of features. 
+        %  - d = dimension of the input 
+        % Return [] if it is not implemented. 
+        %
+        function fm = getRandFeatureMap(this, D, d)
+            fm = [];
+        end
     end
 
     methods (Static)

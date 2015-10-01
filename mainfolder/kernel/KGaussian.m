@@ -50,6 +50,15 @@ classdef KGaussian < Kernel
             D2 = bsxfun(@plus, s2, s2') - 2*(X'*X );
             Kmat = exp(-D2./(2*(this.sigma2)));
         end
+
+        % Get a random feature map as an object of type FeatureMap from which 
+        % random feature approximation of the kernel can be computed. 
+        % D is a positive integer representing the number of features. 
+        % Return [] if it is not implemented. 
+        %
+        function fm = getRandFeatureMap(this, D, d)
+            fm = RandFourierGaussMap(this.sigma2, D, d);
+        end
     end
     
     methods (Static)

@@ -7,9 +7,9 @@ end
 function test_mmd()
     X = randn(3, 100);
     Y = randn(3, 50);
-    ker = KDot();
+    ker = KGaussian(2);
     mm = mmd(X, Y, ker);
-    assert(mm >= 0);
+    assert(mm >= -1);
     %display(sprintf('mmd for independence: %.3g', mm))
 
 end
