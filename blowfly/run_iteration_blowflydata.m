@@ -86,6 +86,37 @@ elseif strcmp(whichmethod, 'k2abc_lin')
 
     end
 
+elseif strcmp(whichmethod, 'k2abc_rf')
+    % K2ABC with linear MMD
+    %
+    width2 = opts.width2; 
+    ker = KGaussian(width2);
+    nfeatures = 300;
+    input_dim = size(opts.yobs, 2);
+    fm = ker.getRandFeatureMap(nfeatures, input_dim);
+    % Set the random feature map for k2abc_rf
+    op.feature_map = fm;
+    
+    if size(opts.epsilon_list,1) ~=0
+        op.epsilon_list = opts.epsilon_list;
+    else
+        op.epsilon_list = logspace(-5, 1, 10);
+    end
+    
+    [R, op] = k2abc_rf(opts.yobs, op);
+    
+    cols = op.dim_theta;
+    num_eps = length(op.epsilon_list);
+    post_mean = zeros(num_eps, cols);
+    post_var = zeros(num_eps, cols);
+    
+    for ei = 1:num_eps  
+        latent_samples = R.latent_samples; 
+        post_mean(ei,:) = latent_samples*R.norm_weights(:, ei) ;
+        post_var(ei,:) = (latent_samples.^2)*R.norm_weights(:, ei) - (post_mean(ei,:).^2)'; 
+
+    end
+
 elseif strcmp(num2str(whichmethod),'rejection_abc')
     
     %% (2) rejection_abc

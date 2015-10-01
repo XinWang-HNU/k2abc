@@ -1,32 +1,36 @@
-% compute an error on the 25% held-out blowfly data
+% compute an error on a held-out blowfly data set
 % this code is what I used for Fig 2
 % mijung wrote and tested on jan 27, 2015
 
 clear all;
-clc;
 clf;
 
 %% (1) load data
 
 load flydata.mat
 
-seed = 11;
+seed = 12;
 oldRng = rng();
 rng(seed);
 
 n = length(flydata);
 
-opts.num_theta_samps = 1000;
+%opts.num_theta_samps = 1000;
+opts.num_theta_samps = 2000;
+%opts.num_pseudodata_samps = 4*ntr;
+opts.num_pseudodata_samps = 2000;
 opts.dim_theta = 6; % dim(theta)
 opts.yobs = flydata';
 
 %whichmethod = 'ssf_kernel_abc';
-whichmethod = 'k2abc_lin';
+%whichmethod = 'k2abc_lin';
+whichmethod = 'k2abc_rf';
+med = meddistance(opts.yobs);
 
 if strcmp(whichmethod, 'ssf_kernel_abc')
     
     howmanyscalelength = 20;
-    width2mat = meddistance(opts.yobs)^2.*2.^linspace(-10, 4, howmanyscalelength);
+    width2mat = med^2.*2.^linspace(-10, 4, howmanyscalelength);
     
     howmanyepsilon = 10;
     opts.epsilon_list = logspace(-6, 1, howmanyepsilon);
@@ -36,15 +40,30 @@ elseif strcmp(whichmethod, 'k2abc_lin')
     howmanyscalelength = 10;
     %width2mat = meddistance(opts.yobs)^2.*2.^linspace(-8, -1, howmanyscalelength);
     
-    med_factors =  2.^linspace(-9, 2, howmanyscalelength);
-    width2mat = (meddistance(opts.yobs)^2)*med_factors;
+    med_factors =  2.^linspace(-1, 5, howmanyscalelength);
+    width2mat = (med^2)*med_factors;
     %howmanyscalelength = length(med_factors);
     
-    howmanyepsilon = 10;
-    opts.epsilon_list = logspace(-6, -1, howmanyepsilon);
+    howmanyepsilon = 30;
+    opts.epsilon_list = logspace(-5, -1, howmanyepsilon);
     
-end
+elseif strcmp(whichmethod, 'k2abc_rf')
+    howmanyscalelength = 10;
+    %width2mat = meddistance(opts.yobs)^2.*2.^linspace(-8, -1, howmanyscalelength);
+    
+    med_factors =  2.^linspace(-1, 5, howmanyscalelength);
+    %med_factors = med_factors(6:end);
+    %howmanyscalelength = length(med_factors);
 
+    width2mat = (med^2)*med_factors;
+    %howmanyscalelength = length(med_factors);
+    
+    howmanyepsilon = 30;
+    opts.epsilon_list = logspace(-5, -1, howmanyepsilon);
+
+
+end
+display(sprintf('Observation median dist^2: %.3f', med^2 ));
 %%
 maxiter = length(width2mat);
 
@@ -57,12 +76,12 @@ assert(length(idx_trn) == n);
 ntr = sum(idx_trn);
 
 opts.num_obs = ntr;
-opts.num_pseudodata_samps = 4*ntr;
 opts.yobs = flydata(1:ntr)';
 
 for iter = 1 : howmanyscalelength
-    
-    [iter howmanyscalelength]
+
+    display(sprintf('(%d/%d) Running %s with Gauss. width^2: %.3f', ...
+        iter, howmanyscalelength, whichmethod, width2mat(iter)));
     
     opts.width2 = width2mat(iter);
   
@@ -82,8 +101,8 @@ avg_loss_mat = zeros(howmanyscalelength, howmanyepsilon);
 opts.likelihood_func = @ gendata_pop_dyn_eqn;
 opts.num_rep = 100;
 %
-idx_tst = [zeros(1, n*3/4) ones(1, n/4)];
-testdat = flydata(n*3/4+1:n)';
+idx_tst = [zeros(1, last_idx_trn), ones(1, n-last_idx_trn)];
+testdat = flydata( (last_idx_trn+1):n);
 %
 
 s_true = ss_for_blowflydata(testdat);
@@ -101,7 +120,7 @@ for i=1:howmanyscalelength
     %     load(strcat('blowflydata: ', num2str(whichmethod), '_thLengthScale', num2str(i), '_thxvset', '.mat'));
     
     for j=1:howmanyepsilon
-        [i j]
+        %[i j]
         
         opts.params = results.post_mean(j,:);
         %%
@@ -125,7 +144,9 @@ for i=1:howmanyscalelength
 end
 
 
-[minIdx1, minIdx2] = ind2sub([howmanyscalelength, howmanyepsilon], find(min(min(avg_loss_mat)) == avg_loss_mat,2))
+[minIdx1, minIdx2] = ind2sub([howmanyscalelength, howmanyepsilon], find(min(min(avg_loss_mat)) == avg_loss_mat,2));
+display(sprintf('best width2: %.3f, index: %d', width2mat(minIdx1), minIdx1));
+display(sprintf('best eps: %.3g, index: %d', opts.epsilon_list(minIdx2) , minIdx2));
 subplot(211); plot(avg_loss_mat');
 % legend('l=2^-5*median', 'l=2^-4*median', 'l=2^-3*median', 'l=2^-2*median', 'l=2^-1*median', 'l=median', 'l=2*median', 'l=2^2*median', 'l=2^3*median', 'l=2^4*median', 'l=2^5*median');
 % ylabel('prediction on test data (hist)'); xlabel('epsilon');
@@ -151,13 +172,11 @@ width_opt = width2mat(minIdx1);
 opts.epsilon_list = epsilon_opt;
 
 opts.num_obs = n;
-opts.num_pseudodata_samps = n*4;
 opts.dim_theta = 6; % dim(theta)
 opts.yobs = flydata';
 
 opts.width2 = width_opt;
 % opts.width2 =  width2mat(minIdx1);
-results = run_iteration_blowflydata(whichmethod, opts, 9);
 
 if strcmp(whichmethod, 'ssf_kernel_abc')
     
@@ -171,6 +190,8 @@ elseif strcmp(whichmethod, 'k2abc_lin')
     opt_k2abc_lin = results.post_mean;
     save opt_k2abc_lin opt_k2abc_lin;
     
+else
+    results = run_iteration_blowflydata(whichmethod, opts, 9);
 end
 
 % this is what I used for k2abc
@@ -196,6 +217,6 @@ for i=1:num_rept_mse
     msemat(i) = mse(s_ours);
 end
 
-mean(msemat)
+display(sprintf('MSE between stats. of generated data and observations: %.4f', mean(msemat) ));
 
 

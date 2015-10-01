@@ -18,13 +18,24 @@ assert(isa(ker, 'Kernel'));
 assert(isnumeric(X));
 assert(isnumeric(Y));
 
+% deterministic shuffle of Obs. This will break dependency when we apply this method to 
+% non-i.i.d. data. This shuffling should not have a negative effect for i.i.d.
+% case.
+oldRng = rng();
+rng(19280);
+X = X(:, randperm(size(X, 2)));
+Y = Y(:, randperm(size(Y, 2)));
+rng(oldRng);
+%
 nx = size(X, 2);
 Kxvec = ker.pairEval( X(:, 1:(nx-1)), X(:, 2:nx) );
 xx = mean(Kxvec);
+%xx = mean([Kxvec, ker.pairEval(X, X)]);
 
 ny = size(Y, 2);
 Kyvec = ker.pairEval( Y(:, 1:(ny-1)), Y(:, 2:ny) );
 yy = mean(Kyvec);
+%yy = mean([Kyvec, ker.pairEval(Y, Y)]);
 
 % cross term.
 % First make sure that X, Y have the same length. If not, cycle the shorter 
@@ -44,13 +55,6 @@ S = S(:, M(1:l));
 % S will now have the same length as L with repeated observations.
 assert(size(S, 2) == size(L, 2));
 
-% deterministic shuffle of Obs. This will break dependency when we apply this method to 
-% non-i.i.d. data. This shuffling should not have a negative effect for i.i.d.
-% case.
-%oldRng = rng();
-%rng(19280);
-%S = S(:, randperm(size(S, 2)));
-%rng(oldRng);
 
 Ksl = ker.pairEval(S, L);
 xy = mean(Ksl);
@@ -59,8 +63,8 @@ xy = mean(Ksl);
 mm2 = xx - 2*xy + yy;
 
 %if mm2 < 0
-% mm2 = 0;
-% %display(sprintf('mmd_lin. negative mm2: %.3f', mm2));
+%mm2 = 0;
+%%display(sprintf('mmd_lin. negative mm2: %.3f', mm2));
 %end
 
 end
