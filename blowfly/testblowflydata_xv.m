@@ -4,6 +4,7 @@
 
 clear all;
 clf;
+close all;
 
 %% (1) load data
 
@@ -190,8 +191,16 @@ elseif strcmp(whichmethod, 'k2abc_lin')
     opt_k2abc_lin = results.post_mean;
     save opt_k2abc_lin opt_k2abc_lin;
     
-else
+elseif strcmp(whichmethod, 'k2abc_rf')
+    
     results = run_iteration_blowflydata(whichmethod, opts, 9);
+    opt_k2abc_rf = results.post_mean;
+    save opt_k2abc_rf opt_k2abc_rf;
+    
+else
+    
+    results = run_iteration_blowflydata(whichmethod, opts, 9);
+    
 end
 
 % this is what I used for k2abc
