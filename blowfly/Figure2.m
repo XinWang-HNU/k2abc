@@ -343,10 +343,11 @@ for i=1:num_rept_mse
     plot(1:180, flydata/1000, 'k', 1:180, simuldat_ours./1000, 'r-');
     set(gca, 'ylim', [0 12]); ylabel('k abc');
     
-    %% ours (linear mmd)
+    %% ours  with different MMD estimators
     
-    load  opt_k2abc_lin;
-    simuldat_ours_lin = gendata_pop_dyn_eqn(opt_k2abc_lin, n);
+%     load  opt_k2abc_lin;
+    load opt_k2abc_rf; 
+    simuldat_ours_lin = gendata_pop_dyn_eqn(opt_k2abc_rf, n);
 
     %% indirect_score_abc
     
@@ -394,7 +395,7 @@ std(msemat)
 %%
 % boxplot(msemat, {'k2', 'sl', 'sa-woods', 'aux', 'sa', 'saq', 'k'}); 
 
-boxplot(msemat, {'k2', 'k2lin',  'sl', 'sa-woods', 'aux', 'sa', 'saq', 'sa-woods-w', 'sa-w', 'saq-w','k'}); 
+boxplot(msemat, {'k2', 'k2-rf',  'sl', 'sa-woods', 'aux', 'sa', 'saq', 'sa-woods-w', 'sa-w', 'saq-w','k'}); 
 % set(gca, 'xticklabel',method_names);
 % legend('ours', 'synthetic likelihood abc', 'kabc')
 
