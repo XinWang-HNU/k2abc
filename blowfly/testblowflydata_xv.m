@@ -24,8 +24,8 @@ opts.dim_theta = 6; % dim(theta)
 opts.yobs = flydata';
 
 %whichmethod = 'ssf_kernel_abc';
-%whichmethod = 'k2abc_lin';
-whichmethod = 'k2abc_rf';
+whichmethod = 'k2abc_lin';
+%whichmethod = 'k2abc_rf';
 med = meddistance(opts.yobs);
 
 if strcmp(whichmethod, 'ssf_kernel_abc')
@@ -38,10 +38,10 @@ if strcmp(whichmethod, 'ssf_kernel_abc')
     
 elseif strcmp(whichmethod, 'k2abc_lin')
     
-    howmanyscalelength = 10;
+    howmanyscalelength = 5;
     %width2mat = meddistance(opts.yobs)^2.*2.^linspace(-8, -1, howmanyscalelength);
     
-    med_factors =  2.^linspace(-1, 5, howmanyscalelength);
+    med_factors =  2.^linspace(2, 5, howmanyscalelength);
     width2mat = (med^2)*med_factors;
     %howmanyscalelength = length(med_factors);
     
