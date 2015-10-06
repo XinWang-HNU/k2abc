@@ -187,7 +187,7 @@ if strcmp(whichmethod, 'ssf_kernel_abc')
     
 elseif strcmp(whichmethod, 'k2abc_lin')
     
-    results = run_iteration_blowflydata(whichmethod, opts, 9);
+    results = run_iteration_blowflydata(whichmethod, opts, 3);
     opt_k2abc_lin = results.post_mean;
     save opt_k2abc_lin opt_k2abc_lin;
     
