@@ -91,7 +91,7 @@ elseif strcmp(whichmethod, 'k2abc_rf')
     %
     width2 = opts.width2; 
     ker = KGaussian(width2);
-    nfeatures = 300;
+    nfeatures = 50;
     input_dim = size(opts.yobs, 2);
     fm = ker.getRandFeatureMap(nfeatures, input_dim);
     % Set the random feature map for k2abc_rf

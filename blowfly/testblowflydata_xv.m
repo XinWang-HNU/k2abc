@@ -16,6 +16,14 @@ rng(seed);
 
 n = length(flydata);
 
+% split data into training and test data
+last_idx_trn = ceil(n*3/4);
+idx_trn = [ones(1, last_idx_trn), zeros(1, n - last_idx_trn)];
+assert(length(idx_trn) == n);
+
+% training indices
+ntr = sum(idx_trn);
+
 %opts.num_theta_samps = 1000;
 opts.num_theta_samps = 2000;
 %opts.num_pseudodata_samps = 4*ntr;
@@ -24,8 +32,8 @@ opts.dim_theta = 6; % dim(theta)
 opts.yobs = flydata';
 
 %whichmethod = 'ssf_kernel_abc';
-whichmethod = 'k2abc_lin';
-%whichmethod = 'k2abc_rf';
+%whichmethod = 'k2abc_lin';
+whichmethod = 'k2abc_rf';
 med = meddistance(opts.yobs);
 
 if strcmp(whichmethod, 'ssf_kernel_abc')
@@ -33,8 +41,8 @@ if strcmp(whichmethod, 'ssf_kernel_abc')
     howmanyscalelength = 20;
     width2mat = med^2.*2.^linspace(-10, 4, howmanyscalelength);
     
-    howmanyepsilon = 10;
-    opts.epsilon_list = logspace(-6, 1, howmanyepsilon);
+    howmanyepsilon = 30;
+    opts.epsilon_list = logspace(-6, -1, howmanyepsilon);
     
 elseif strcmp(whichmethod, 'k2abc_lin')
     
@@ -43,7 +51,6 @@ elseif strcmp(whichmethod, 'k2abc_lin')
     
     med_factors =  2.^linspace(2, 5, howmanyscalelength);
     width2mat = (med^2)*med_factors;
-    %howmanyscalelength = length(med_factors);
     
     howmanyepsilon = 30;
     opts.epsilon_list = logspace(-5, -1, howmanyepsilon);
@@ -68,13 +75,6 @@ display(sprintf('Observation median dist^2: %.3f', med^2 ));
 %%
 maxiter = length(width2mat);
 
-% split data into training and test data
-last_idx_trn = ceil(n*3/4);
-idx_trn = [ones(1, last_idx_trn), zeros(1, n - last_idx_trn)];
-assert(length(idx_trn) == n);
-
-% training indices
-ntr = sum(idx_trn);
 
 opts.num_obs = ntr;
 opts.yobs = flydata(1:ntr)';
