@@ -9,20 +9,16 @@ This repository contains Matlab implementation of K2-ABC as described in
 
 ## Demo script 
 
-1. In Matlab, switch to `code/` with `cd code`.
-2. Run `startup` to include all necessary dependency.
-3. Run `demo_k2abc_rf`. The code is at
+1. In Matlab, switch to `code/` folder with `cd code`.
+2. Run `startup` to include necessary dependency.
+3. Run `demo_k2abc_rf` to see a demo. The full code is at
    [demo/demo_k2abc_rf.m](https://github.com/wittawatj/k2abc/blob/master/code/demo/demo_k2abc_rf.m).
-This code demonstrates how to use K2-ABC random Fourier features as well as
-K2-ABC with full quadratic MMD. We consider a one-dimensional Gaussian
+This code demonstrates how to use K2-ABC random with Fourier features as well as
+K2-ABC with full quadratic MMD. Here, the problem we consider is a one-dimensional Gaussian
 likelihood. The goal is to infer the mean of the normal distribution.  In this
 demo, we assume that the true mean is 3, and observe 200 points.
 
 ```matlab
-
-%DEMO_K2ABC_RF Demonstrate how to use K2ABC + MMD with random Fourier features. 
-%
-
 % Set up a likelihood function (theta, n) -> data. Here n is the number of points 
 % to draw for each parameter theta. This function should return d x n matrix 
 % in general.
@@ -47,8 +43,6 @@ op = struct();
 % Here we use 0-mean Gaussian proposal with variance 8.
 op.proposal_dist = @(n)randn(1, n)*sqrt(8);
 
-% Likelihood function handle. func : (theta, n) -> (d'' x n) where theta is one 
-% drawn latent vector and n is the number of samples to draw.
 op.likelihood_func = likelihood_func;
 
 % List of ABC tolerances. Will try all of them one by one. 
@@ -108,10 +102,13 @@ superTitle=sprintf('Approx. Posterior. true theta = %.1f, ker = %s, likelihood =
 
 ```
 
-The script will give a plot of the following results. 
+The script will show the following plot.
 
 ![Inferred posteriors with different epsilons](https://raw.githubusercontent.com/wittawatj/k2abc/master/img/demo_k2abc_rf.png)
 
+In both K2-ABC with full quadratic MMD (K2ABC-quad), and K2-ABC with 
+random features (K2ABC-rf), the posterior samples concentrate around the true mean 3.
+We observe that small epsilons tend to yield posterior distributions with smaller variance.
 
 
 
