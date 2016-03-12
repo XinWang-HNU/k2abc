@@ -1,1 +1,0 @@
-__all__ = ["exponential_problem"]
