@@ -6,6 +6,7 @@ This repository contains Matlab implementation of K2-ABC as described in
     Mijung Park, Wittawat Jitkrittum, Dino Sejdinovic
     To appear in AISTATS 2016
 
+See the paper [here](http://arxiv.org/abs/1502.02558).
 
 ## Demo script 
 
