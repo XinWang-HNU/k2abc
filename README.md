@@ -60,6 +60,9 @@ op.num_pseudo_data = 200;
 width2 = meddistance(obs)^2;
 % Gaussian kernel takes width squared
 ker = KGaussian(width2);
+
+% This option setting is not necessary for K2-ABC width quadratic MMD.
+% Online for random Fourier features.
 op.feature_map = ker.getRandFeatureMap(nfeatures, 1);
 
 % Run K2-ABC with random features 
