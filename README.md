@@ -1,53 +1,80 @@
-%function [ ] = demo_k2abc_rf( )
+# K2-ABC
+
+This repository contains Matlab implementation of K2-ABC as described in
+
+    K2-ABC: Approximate Bayesian Computation with Kernel Embeddings
+    Mijung Park, Wittawat Jitkrittum, Dino Sejdinovic
+    To appear in AISTATS 2016
+
+
+## Demo script 
+
+1. In Matlab, switch to `code/` with `cd code`.
+2. Run `startup` to include all necessary dependency.
+3. Run `demo_k2abc_rf`. The code is at
+   [demo/demo_k2abc_rf.m](https://github.com/wittawatj/k2abc/blob/master/code/demo/demo_k2abc_rf.m).
+This code demonstrates how to use K2-ABC random Fourier features as well as
+K2-ABC with full quadratic MMD. We consider a one-dimensional Gaussian
+likelihood. The goal is to infer the mean of the normal distribution.  In this
+demo, we assume that the true mean is 3, and observe 200 points.
+
+```matlab
+
 %DEMO_K2ABC_RF Demonstrate how to use K2ABC + MMD with random Fourier features. 
-%Also compare the result to the quadratic MMD version.
-%
-%@date 1 Oct 2015
-%@author Wittawat
 %
 
-seed = 6;
-oldRng = rng();
-rng(seed);
-
+% Set up a likelihood function (theta, n) -> data. Here n is the number of points 
+% to draw for each parameter theta. This function should return d x n matrix 
+% in general.
 likelihood_func = @(theta, n)randn(1, n) + theta;
-%observations 
+
+% True mean is 3.
 true_theta = 3;
+% Set the number of observations to 200
 num_obs = 200;
+
+% number of random features
 nfeatures = 50;
+% Generate the set of observations 
 obs = likelihood_func(true_theta, num_obs );
 
 % options. All options are described in ssf_kernel_abc.
 op = struct();
-op.seed = seed + 1;
+
 % A proposal distribution for drawing the latent variables of interest.
 % func_handle : n -> (d' x n) where n is the number of samples to draw.
 % Return a d' x n matrix.
-% 0-mean Gaussian proposal
+% Here we use 0-mean Gaussian proposal with variance 8.
 op.proposal_dist = @(n)randn(1, n)*sqrt(8);
+
 % Likelihood function handle. func : (theta, n) -> (d'' x n) where theta is one 
 % drawn latent vector and n is the number of samples to draw.
-% Gaussian likelihood 
 op.likelihood_func = likelihood_func;
+
+% List of ABC tolerances. Will try all of them one by one. 
 op.epsilon_list = logspace(-3, 0, 9);
-% number of latent variables (i.e., theta) of interest to draw
+
+% Sample size from the posterior.
 op.num_latent_draws = 500;
+
 % number of pseudo data to draw e.g., the data drawn from the likelihood function
 % for each theta
 op.num_pseudo_data = 200;
 
-% width squared.
+% Set the Gaussian width using the median heuristic. 
 width2 = meddistance(obs)^2;
+% Gaussian kernel takes width squared
 ker = KGaussian(width2);
 op.feature_map = ker.getRandFeatureMap(nfeatures, 1);
 
-[Rrf, op] = k2abc_rf(obs, op);
-% different seed just so that the sequence of proposal is different. Easy to see 
-% in the plot.
-op.seed = op.seed+2;
-[R, op] = k2abc(obs, op);
+% Run K2-ABC with random features 
 % Rrf contains latent samples and their weights for each epsilon.
-%
+[Rrf, op] = k2abc_rf(obs, op);
+
+% Run K2-ABC with full quadratic MMD
+[R, op] = k2abc(obs, op);
+
+% Plot the results
 figure 
 cols = 3;
 num_eps = length(op.epsilon_list);
@@ -79,13 +106,12 @@ superTitle=sprintf('Approx. Posterior. true theta = %.1f, ker = %s, likelihood =
       'HorizontalAlignment', 'center', ...
       'FontSize', 16)
 
-% compute means of theta 
+```
 
-% change seed back 
-rng(oldRng);
-%end
+The script will give a plot of the following results. 
+
+![Inferred posteriors with different epsilons](https://raw.githubusercontent.com/wittawatj/k2abc/master/img/demo_k2abc_rf.png)
 
 
 
-%end
 
