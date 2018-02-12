@@ -4,7 +4,7 @@ This repository contains Matlab implementation of K2-ABC as described in
 
     K2-ABC: Approximate Bayesian Computation with Kernel Embeddings
     Mijung Park, Wittawat Jitkrittum, Dino Sejdinovic
-    To appear in AISTATS 2016
+    AISTATS 2016
 
 See the paper [here](http://arxiv.org/abs/1502.02558).
 
